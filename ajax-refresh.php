@@ -1,15 +1,15 @@
 <?php
-    // Make a MySQL Connection
-    mysql_connect("localhost", "canvas", "password") or die(mysql_error());
-    mysql_select_db("canvas") or die(mysql_error());
+	include "security.php";
 
     $sequence = $_GET["sequence"];
     
+	//Find latest sequence number
     $query = "SELECT MAX(sequence) FROM content";
     $result = mysql_query($query) or die(mysql_error()); 
     $row = mysql_fetch_array($result);
     $newsequence = $row['MAX(sequence)'];
-    // Retrieve all the data from the "example" table
+	
+	//Check for any new data based on sequence number
     $query = "SELECT * FROM content WHERE sequence>'$sequence' ORDER BY z ";
     $result = mysql_query($query)
     or die(mysql_error());  

@@ -54,7 +54,7 @@ var removeIcons;
 
     var bgImage = new Image;
     bgImage.src = "bg.png";
-    bgImage.onload = function(){bgImage.loaded = true;console.log("Background Loaded");render();}
+    bgImage.onload = function(){bgImage.loaded = true;console.log("Background Loaded");render();};
     var rotateImage = new Image;
     rotateImage.src = "ball.png";
 
@@ -73,7 +73,7 @@ function init()
         resize();
 	
 	console.log("Initialisation");
-        var Refresh=setInterval("ajaxFunction(0,REFRESH);",5000);
+    Refresh=setInterval("ajaxFunction(0,REFRESH);",5000);
 }
 
 function CanvasImage() {
@@ -128,7 +128,7 @@ function addObject(id, type, x, y, z, size, rotation, src) {
 window.addEventListener('loadedmetadata', function(e) { 
 
  //       tempImage.image.onloadedmetadata = function(e){
-            console.log("Video " + e.target.src + " Loaded")
+            console.log("Video " + e.target.src + " Loaded");
             e.target.height = e.target.videoHeight;
             e.target.width = e.target.videoWidth;
             objects[e.target.newid].aspectRatio = e.target.height / e.target.width; 
@@ -151,6 +151,7 @@ function convertSize(size) {return size * window.innerWidth;}
 
 function drawImage(image)
 {
+	var size = convertSize(image.size);
     //console.log("drawImage " + v.width + ", " + v.height);
     ctx.save();  // Save co-ordinate system
     ctx.translate(image.x * window.innerWidth, image.y * window.innerHeight);
@@ -172,7 +173,7 @@ function drawImage(image)
         }
     //Frame around each item
     ctx.beginPath(); 
-    ctx.rect(-0.5*convertSize(image.size)-5, -0.5*convertSize(image.size) * image.aspectRatio-5, convertSize(image.size)+10, (convertSize(image.size) * image.aspectRatio)+10);	
+    ctx.rect(-0.5*size-5, -0.5*size * image.aspectRatio-5, size+10, (size * image.aspectRatio)+10);	
     ctx.closePath(); 
     ctx.lineWidth = 10;
     ctx.strokeStyle = "#FFFFFF"; 
@@ -187,7 +188,21 @@ function drawImage(image)
     ctx.shadowColor   = null;    
     }
 
-    ctx.drawImage(image.image, -0.5*convertSize(image.size), -0.5*convertSize(image.size) * image.aspectRatio, convertSize(image.size), (convertSize(image.size) * image.aspectRatio));
+    ctx.drawImage(image.image, -0.5*size, -0.5*size * image.aspectRatio, size, (size * image.aspectRatio));
+
+    if (VIDEO == image.type && (image.image.paused ||  image.image.ended))
+    	{
+    	ctx.beginPath(); 
+	    ctx.moveTo(-0.1*size,-0.1*size);
+	    ctx.lineTo(-0.1*size, 0.1*size);
+	    ctx.lineTo(0.1*size, 0);
+	    ctx.closePath(); 
+	    ctx.lineWidth = 10;
+	    ctx.strokeStyle = "#FFFFFF";  
+	    ctx.globalAlpha = 0.2;  
+	    ctx.lineJoin = 'round';
+	    ctx.stroke(); 
+    	}
 
     ctx.restore();  // Restore co-ordinate system
 }
@@ -373,11 +388,11 @@ function ajaxFunction(id, action){
                     sequence = ajaxRequest.responseText;
                     break;
                 case REFRESH:
-                    eval(ajaxRequest.responseText)
+                    eval(ajaxRequest.responseText);
                     break;
             }
         }
-    }
+    };
     switch(action)
     {
         case UPDATE:
