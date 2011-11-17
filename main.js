@@ -25,6 +25,9 @@
 IMAGE = 0;
 VIDEO = 1;
 
+UPDATE = 0;
+REFRESH = 1;
+
 //GLOBALS
 var drag_flag = false; 
 var rotate_flag = false; 
@@ -44,23 +47,23 @@ var resise_ratio = 0;
 var objects = [];
 var imageId = 0;
 var maxz = 0;
+var displayIcons = false;
 
-var hotspot_size = 50;
+var hotspot_size = 40;
+var removeIcons;
 
     var bgImage = new Image;
     bgImage.src = "bg.png";
-    bgImage.onload = function(){bgImage.loaded = true; console.log("Background Loaded"); render();}
+    bgImage.onload = function(){bgImage.loaded = true;console.log("Background Loaded");render();}
     var rotateImage = new Image;
-    rotateImage.src = "rotate.png";
-    var resizeImage = new Image;
-    resizeImage.src = "zoom.png";
+    rotateImage.src = "ball.png";
 
 v = document.getElementById('v');
 
 function draw(v) {
     if(v.paused || v.ended) return false;
 	render();
-    setTimeout(draw,20,v);
+    setTimeout(draw,50,v);
 }
 	
 function init()
@@ -70,9 +73,8 @@ function init()
         resize();
 	
 	console.log("Initialisation");
-
+        var Refresh=setInterval("ajaxFunction(0,REFRESH);",5000);
 }
-
 
 function CanvasImage() {
         this.id = 0;
@@ -101,32 +103,39 @@ function addObject(id, type, x, y, z, size, rotation, src) {
     
     if(type == VIDEO)
         {
-        var video = document.createElement('video');
-        video.src = src;
-        document.body.appendChild(video);
-        tempImage.image = video;
-        var id = objects.push(tempImage);
-        objects[(id-1)].image.onloadedmetadata = function(){
-            console.log("Video " + objects[(id-1)].image.src + " Loaded")
-            objects[(id-1)].image.height = video.videoHeight;
-            objects[(id-1)].image.width = video.videoWidth;
-            objects[(id-1)].aspectRatio = objects[(id-1)].image.height / objects[(id-1)].image.width; 
-            objects[(id-1)].loaded = true;
-            render();
-            }
+        tempImage.image = document.createElement('video');
+        tempImage.image.src = src;
+        document.body.appendChild(tempImage.image);
+        var newid = objects.push(tempImage) - 1;
+        objects[newid].image.newid = newid;
+        
+//        tempImage.image = video;
+        
         }
     else if(type == IMAGE)
         {
         tempImage.image.src = src;
-        var id = objects.push(tempImage);
-        objects[(id-1)].image.onload = function(){
-            console.log("Loaded " + objects[(id-1)].image.src);
-            objects[(id-1)].loaded = true;
-            objects[(id-1)].aspectRatio = objects[(id-1)].image.height / objects[(id-1)].image.width;
+        var newid = objects.push(tempImage) - 1;
+        objects[newid].image.onload = function(){
+            console.log("Image " + objects[newid].image.src + " Loaded");
+            objects[newid].loaded = true;
+            objects[newid].aspectRatio = objects[newid].image.height / objects[newid].image.width;
             render();
             };
         }
 }
+
+window.addEventListener('loadedmetadata', function(e) { 
+
+ //       tempImage.image.onloadedmetadata = function(e){
+            console.log("Video " + e.target.src + " Loaded")
+            e.target.height = e.target.videoHeight;
+            e.target.width = e.target.videoWidth;
+            objects[e.target.newid].aspectRatio = e.target.height / e.target.width; 
+            objects[e.target.newid].loaded = true;
+            render();
+   //         }
+            }, true);
 
 function resize()
 {
@@ -136,9 +145,9 @@ function resize()
 	render();
 }
 
-function convertx(x, size) {	return (x - (size/2)) * window.innerWidth ;}
-function converty(y, size, aspectRatio) {	return (y * window.innerHeight - ((size/2)* aspectRatio) * window.innerWidth);}
-function convertSize(size) {	return size * window.innerWidth;}
+function convertx(x, size) {return (x - (size/2)) * window.innerWidth ;}
+function converty(y, size, aspectRatio) {return (y * window.innerHeight - ((size/2)* aspectRatio) * window.innerWidth);}
+function convertSize(size) {return size * window.innerWidth;}
 
 function drawImage(image)
 {
@@ -148,17 +157,18 @@ function drawImage(image)
     ctx.rotate(image.rotation * Math.PI / 180);
 
 
-    {
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-    ctx.shadowBlur    = 4;
-    ctx.shadowColor   = 'rgba(0, 0, 0, 0.5)';    
-    }
+//    {
+//    ctx.shadowOffsetX = 0;
+//    ctx.shadowOffsetY = 0;
+//    ctx.shadowBlur    = 4;
+//    ctx.shadowColor   = 'rgba(0, 0, 0, 0.5)';    
+//    }
     if((drag_flag || rotate_flag || resize_flag) && image.z == maxz)    
         {
         ctx.shadowOffsetX = 10;
         ctx.shadowOffsetY = 10;
         ctx.shadowBlur    = 10;
+        ctx.shadowColor   = 'rgba(0, 0, 0, 0.5)';    
         }
     //Frame around each item
     ctx.beginPath(); 
@@ -173,8 +183,8 @@ function drawImage(image)
     {
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
-    ctx.shadowBlur    = 20;
-    ctx.shadowColor   = 'rgba(0, 0, 0, 0.5)';    
+    ctx.shadowBlur    = 0;
+    ctx.shadowColor   = null;    
     }
 
     ctx.drawImage(image.image, -0.5*convertSize(image.size), -0.5*convertSize(image.size) * image.aspectRatio, convertSize(image.size), (convertSize(image.size) * image.aspectRatio));
@@ -186,36 +196,40 @@ function myDown(e){
 	var l = objects.length;
     for (var i = l-1; i >= 0; i--)
 	{
-		angle_to_rotate_hotspot = Math.atan2(-1*objects[i].image.height, objects[i].image.width) + objects[i].rotation * Math.PI  / 180;
-		angle_to_size_hotspot = Math.atan2(objects[i].image.height, objects[i].image.width) + objects[i].rotation * Math.PI  / 180;
-		mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size),2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio),2)) / 2;
+		angle_to_TR = Math.atan2(-1*objects[i].image.height, objects[i].image.width) + objects[i].rotation * Math.PI  / 180;
+                angle_to_BR = Math.atan2(objects[i].image.height, objects[i].image.width) + objects[i].rotation * Math.PI  / 180;
+                angle_to_TL = angle_to_TR + 180 * Math.PI  / 180;
+                angle_to_BL = angle_to_BR + 180 * Math.PI  / 180;
+                mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size),2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio),2)) / 2 + 5;
 		//Rotate hotspot
-		if (   e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_rotate_hotspot) * mag_to_corner + hotspot_size/2 
-                        && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_rotate_hotspot) * mag_to_corner - hotspot_size/2
-                        && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_rotate_hotspot) * mag_to_corner + hotspot_size/2 
-                        && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_rotate_hotspot) * mag_to_corner - hotspot_size/2)	
-		{
-			temp_x = (e.pageX);
-			temp_y = (e.pageY);
-			rotate_offset = Math.atan2((temp_y - (objects[i].y * window.innerHeight)) , (temp_x - (objects[i].x * window.innerWidth))) * 180 / Math.PI - objects[i].rotation;
-			rotate_flag = true;
-			imageId = i;
-			canvas.onmousemove = myMove;
-			return;
-		}
-		//Resize hotspot
-		else if (  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_size_hotspot) * mag_to_corner + hotspot_size/2 
-                        && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_size_hotspot) * mag_to_corner - hotspot_size/2
-                        && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_size_hotspot) * mag_to_corner + hotspot_size/2 
-                        && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_size_hotspot) * mag_to_corner - hotspot_size/2)	
+		if (    (  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_TR)  * mag_to_corner + hotspot_size/2 
+                        && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_TR)  * mag_to_corner - hotspot_size/2
+                        && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_TR) * mag_to_corner + hotspot_size/2 
+                        && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_TR) * mag_to_corner - hotspot_size/2 )  ||
+                        (  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_TL)  * mag_to_corner + hotspot_size/2 
+                        && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_TL)  * mag_to_corner - hotspot_size/2
+                        && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_TL) * mag_to_corner + hotspot_size/2 
+                        && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_TL) * mag_to_corner - hotspot_size/2 )  ||
+                        (  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_BR)  * mag_to_corner + hotspot_size/2 
+                        && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_BR)  * mag_to_corner - hotspot_size/2
+                        && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_BR) * mag_to_corner + hotspot_size/2 
+                        && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_BR) * mag_to_corner - hotspot_size/2 )  ||
+                        (  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_BL)  * mag_to_corner + hotspot_size/2 
+                        && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_BL)  * mag_to_corner - hotspot_size/2
+                        && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_BL) * mag_to_corner + hotspot_size/2 
+                        && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_BL) * mag_to_corner - hotspot_size/2 )
+                )	
 		{
 			temp_x = (e.pageX);
 			temp_y = (e.pageY);
 			resise_ratio = objects[i].size / (Math.sqrt(Math.pow((e.pageY - (objects[i].y * window.innerHeight)),2) + Math.pow((e.pageX - (objects[i].x * window.innerWidth)),2) ));
-			//console.log(resise_ratio);
+			rotate_offset = Math.atan2((temp_y - (objects[i].y * window.innerHeight)) , (temp_x - (objects[i].x * window.innerWidth))) * 180 / Math.PI - objects[i].rotation;
+                        rotate_flag = true;
 			resize_flag = true;
 			imageId = i;
 			canvas.onmousemove = myMove;
+                        displayIcons = true;
+                        if (removeIcons != null) clearTimeout(removeIcons);
 			return;
 		}
 		//Move hotspot
@@ -229,7 +243,7 @@ function myDown(e){
                             objects[i].z = maxz+1;
                             objects.sort(sortNumber);
                             render();
-                            myDown(e)
+                            myDown(e); 
                             return;
                         }
                         
@@ -239,6 +253,8 @@ function myDown(e){
 			imageId = i;
 			canvas.onmousemove = myMove;
                         moved_flag = false;
+                        displayIcons = true;  
+                        if (removeIcons != null) clearTimeout(removeIcons);
 			return;
 		}
 	}
@@ -257,20 +273,27 @@ function myMove(e){
 	}
 	if (resize_flag)	{
 		objects[imageId].size = (Math.sqrt(Math.pow((e.pageY - (objects[imageId].y * window.innerHeight)),2) + Math.pow((e.pageX - (objects[imageId].x * window.innerWidth)),2)) * resise_ratio );
-		render();
+		if (objects[imageId].size < 0.05) objects[imageId].size = 0.05;
+                render();
 	}
 }
 
 function myUp(){
 	canvas.onmousemove = null;
+        removeIcons=setTimeout("displayIcons = false;",3000);
 	if (moved_flag == false && drag_flag) {
+            if (objects[imageId].type == VIDEO) {
 		console.log("Play Video");
 		if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else objects[imageId].image.pause(); 
 		
 		draw(objects[imageId].image);
+            }
 	}
         else
-            ajaxFunction(imageId);
+            {
+            //console.log(sequence);
+            ajaxFunction(imageId, UPDATE);
+            }
 	moved_flag = false;
 	drag_flag = false;
 	rotate_flag = false;
@@ -293,30 +316,33 @@ function render()
     for (var i = 0; i < l; i++) 
 	{
         if (objects[i].z > maxz) maxz = objects[i].z;
-        if (objects[i].type == VIDEO) objects[i].loaded =  (objects[i].image.readyState > 0);
+        //if (objects[i].type == VIDEO) objects[i].loaded =  (objects[i].image.readyState > 0);
         if (objects[i].loaded)
             {
             drawImage(objects[i]);
 
-            angle_to_rotate_hotspot = Math.atan2(-1*objects[i].image.height, objects[i].image.width) + objects[i].rotation * Math.PI  / 180;
-            angle_to_size_hotspot = Math.atan2(objects[i].image.height, objects[i].image.width) + objects[i].rotation * Math.PI  / 180;
-            mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size),2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio),2)) / 2;
+            angle_to_TR = Math.atan2(-1*objects[i].image.height, objects[i].image.width) + objects[i].rotation * Math.PI  / 180;
+            angle_to_BR = Math.atan2(objects[i].image.height, objects[i].image.width) + objects[i].rotation * Math.PI  / 180;
+            angle_to_TL = angle_to_TR + 180 * Math.PI  / 180;
+            angle_to_BL = angle_to_BR + 180 * Math.PI  / 180;
+            mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size),2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio),2)) / 2 + 5;
 
-            //Rotate Hotspot
-            //ctx.rect(objects[i].x * window.innerWidth + Math.cos(angle_to_rotate_hotspot) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_rotate_hotspot) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
-            ctx.drawImage(rotateImage, objects[i].x * window.innerWidth + Math.cos(angle_to_rotate_hotspot) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_rotate_hotspot) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
-
-            //Resize Hotspot
-            //ctx.rect(objects[i].x * window.innerWidth + Math.cos(angle_to_size_hotspot) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_size_hotspot) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
-            ctx.drawImage(resizeImage, objects[i].x * window.innerWidth + Math.cos(angle_to_size_hotspot) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_size_hotspot) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
+            // Hotspots
+            if (displayIcons && imageId == i)
+                {
+                ctx.drawImage(rotateImage, objects[i].x * window.innerWidth + Math.cos(angle_to_TR) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_TR) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
+                ctx.drawImage(rotateImage, objects[i].x * window.innerWidth + Math.cos(angle_to_BR) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_BR) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
+                ctx.drawImage(rotateImage, objects[i].x * window.innerWidth + Math.cos(angle_to_TL) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_TL) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
+                ctx.drawImage(rotateImage, objects[i].x * window.innerWidth + Math.cos(angle_to_BL) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_BL) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
+                }
             }
-        } 
+        }
 }
 
 
 
 //Browser Support Code
-function ajaxFunction(id){
+function ajaxFunction(id, action){
     var ajaxRequest;  // The variable that makes Ajax possible!
 
     try{
@@ -340,15 +366,29 @@ function ajaxFunction(id){
     ajaxRequest.onreadystatechange = function(){
         if(ajaxRequest.readyState == 4){
             //objects.length = 0;  
-           // eval(ajaxRequest.responseText)
             //render();
+            switch(action)
+            {
+                case UPDATE:
+                    sequence = ajaxRequest.responseText;
+                    break;
+                case REFRESH:
+                    eval(ajaxRequest.responseText)
+                    break;
+            }
         }
     }
-    var queryString = "?id=" + objects[id].id + "&x=" + objects[id].x + "&y=" + objects[id].y + "&z=" + objects[id].z + "&size=" + objects[id].size + "&rotation=" + objects[id].rotation;
-    ajaxRequest.open("GET", "ajax-update.php" + queryString, true);
-
-    
-//    ajaxRequest.open("GET", "ajax-refresh.php", true);
+    switch(action)
+    {
+        case UPDATE:
+            var queryString = "?id=" + objects[id].id + "&x=" + objects[id].x + "&y=" + objects[id].y + "&z=" + objects[id].z + "&size=" + objects[id].size + "&rotation=" + objects[id].rotation;
+            ajaxRequest.open("GET", "ajax-update.php" + queryString, true);
+            break;
+        case REFRESH:
+            var queryString = "?sequence=" + sequence;
+            ajaxRequest.open("GET", "ajax-refresh.php" + queryString, true); 
+            break;
+    }
     ajaxRequest.send(null); 
     //render();
     
