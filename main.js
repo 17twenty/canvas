@@ -48,6 +48,7 @@ var objects = [];
 var imageId = 0;
 var maxz = 0;
 var displayIcons = false;
+var fontsLoaded = false;
 
 var hotspot_size = 40;
 var removeIcons;
@@ -74,6 +75,26 @@ function init()
 	
 	console.log("Initialisation");
     Refresh=setInterval("ajaxFunction(0,REFRESH);",5000);
+    
+    google.load("webfont", "1");
+
+
+	google.setOnLoadCallback(function() {
+	console.log("Start Loading fonts");
+		
+	  WebFont.load({
+	    google: {
+	      families: [ 'Loved by the King' ]
+	    },
+	    active: function(){
+	    	console.log("Font Loaded");
+	    	fontsLoaded = true;
+	  		render();
+	  	}
+	  });
+
+	  });
+	 
 }
 
 function CanvasImage() {
@@ -82,6 +103,7 @@ function CanvasImage() {
 	this.x = 0.5;
 	this.y = 0.5;
 	this.z = 0;
+	this.desc = "";
 	this.size = 1;
 	this.rotation = 0;
 	this.aspectRatio = 1;
@@ -89,7 +111,7 @@ function CanvasImage() {
 	this.loaded = false;
 }
 
-function addObject(id, type, x, y, z, size, rotation, src) {
+function addObject(id, type, x, y, z, size, rotation, desc, src) {
     
     console.log("Add: " + src);
     var tempImage = new CanvasImage;
@@ -100,6 +122,7 @@ function addObject(id, type, x, y, z, size, rotation, src) {
     tempImage.z = z;
     tempImage.size = size;
     tempImage.rotation = rotation;
+    tempImage.desc = desc;
     
     if(type == VIDEO)
         {
@@ -172,13 +195,34 @@ function drawImage(image)
         ctx.shadowColor   = 'rgba(0, 0, 0, 0.5)';    
         }
     //Frame around each item
-    ctx.beginPath(); 
-    ctx.rect(-0.5*size-5, -0.5*size * image.aspectRatio-5, size+10, (size * image.aspectRatio)+10);	
-    ctx.closePath(); 
-    ctx.lineWidth = 10;
-    ctx.strokeStyle = "#FFFFFF"; 
-    ctx.lineCap = "square";
-    ctx.stroke(); 
+    if (VIDEO == image.type)
+	{
+    	ctx.beginPath(); 
+	    ctx.rect(-0.5*size-5, -0.5*size * image.aspectRatio-5, size+10, (size * image.aspectRatio)+40);	
+	    ctx.closePath(); 
+	    ctx.lineWidth = 10;
+	    ctx.fillStyle = "#FFFFFF"; 
+	    ctx.strokeStyle = "#FFFFFF"; 
+	    ctx.lineCap = "square";
+	    ctx.stroke(); 
+	    ctx.fill();
+	    if(fontsLoaded)
+	    {ctx.fillStyle = "#000000"; 
+	    ctx.font = "20px 'Loved by the King', cursive";
+	    ctx.textBaseline = "middle";
+	    ctx.textAlign = "center";
+	    ctx.fillText(image.desc, 0, 0.5*size*image.aspectRatio + 20, size);}
+	}
+    else
+    {
+    	ctx.beginPath(); 
+	    ctx.rect(-0.5*size-5, -0.5*size * image.aspectRatio-5, size+10, (size * image.aspectRatio)+10);	
+	    ctx.closePath(); 
+	    ctx.lineWidth = 10;
+	    ctx.strokeStyle = "#FFFFFF"; 
+	    ctx.lineCap = "square";
+	    ctx.stroke(); 
+    }
     
     
     {
@@ -217,7 +261,8 @@ function myDown(e){
                 angle_to_BL = angle_to_BR + 180 * Math.PI  / 180;
                 mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size),2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio),2)) / 2 + 5;
 		//Rotate hotspot
-		if (    (  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_TR)  * mag_to_corner + hotspot_size/2 
+		if (    objects[i].loaded && 
+				(  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_TR)  * mag_to_corner + hotspot_size/2 
                         && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_TR)  * mag_to_corner - hotspot_size/2
                         && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_TR) * mag_to_corner + hotspot_size/2 
                         && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_TR) * mag_to_corner - hotspot_size/2 )  ||

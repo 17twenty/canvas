@@ -6,6 +6,8 @@
             body {margin:0px; overflow: hidden;}
         </style>
         <script src="jquery-latest.js"></script>
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
     </head>
     <body onresize="resize();">
         <canvas id="myCanvas" width="500" height="500" style="border:0px">
@@ -29,7 +31,7 @@
             <?php
             print "var sequence = $sequence;\n";
             
-                while($row = mysql_fetch_array($result)) print ("addObject(" . $row['id'] . ", " . $row['type'] . ", " . $row['x'] . ", " . $row['y'] . ", " . $row['z'] . ", " . $row['size'] . ", " . $row['rotation'] . ", \"" . $row['link'] . "\");\n");
+                while($row = mysql_fetch_array($result)) print ("addObject(" . $row['id'] . ", " . $row['type'] . ", " . $row['x'] . ", " . $row['y'] . ", " . $row['z'] . ", " . $row['size'] . ", " . $row['rotation'] . ", \"" . $row['name'] . "\", \"" . $row['link'] . "\");\n");
             ?>
         </script>
     </body>
