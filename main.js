@@ -50,7 +50,7 @@ var maxz = 0;
 var displayIcons = false;
 var fontsLoaded = false;
 
-var hotspot_size = 40;
+var hotspot_size = 45;
 var removeIcons;
 
     var bgImage = new Image;
@@ -69,6 +69,20 @@ function draw(v) {
 	
 function init()
 {
+	google.load("webfont", "1");
+	google.setOnLoadCallback(function() {
+		console.log("Start Loading fonts");
+		WebFont.load({
+		    google: {
+		      families: [ 'Loved by the King' ]
+		    },
+		    active: function(){
+		    	console.log("Font Loaded");
+		    	fontsLoaded = true;
+		  		render();
+		  	}
+		  });
+	});
 	canvas = document.getElementById("myCanvas");
 	ctx=canvas.getContext("2d");
         resize();
@@ -76,24 +90,7 @@ function init()
 	console.log("Initialisation");
     Refresh=setInterval("ajaxFunction(0,REFRESH);",5000);
     
-    google.load("webfont", "1");
-
-
-	google.setOnLoadCallback(function() {
-	console.log("Start Loading fonts");
-		
-	  WebFont.load({
-	    google: {
-	      families: [ 'Loved by the King' ]
-	    },
-	    active: function(){
-	    	console.log("Font Loaded");
-	    	fontsLoaded = true;
-	  		render();
-	  	}
-	  });
-
-	  });
+    
 	 
 }
 
@@ -195,10 +192,10 @@ function drawImage(image)
         ctx.shadowColor   = 'rgba(0, 0, 0, 0.5)';    
         }
     //Frame around each item
-    if (VIDEO == image.type)
+    if (1)
 	{
     	ctx.beginPath(); 
-	    ctx.rect(-0.5*size-5, -0.5*size * image.aspectRatio-5, size+10, (size * image.aspectRatio)+40);	
+	    ctx.rect(-0.5*size-5, -0.5 * size * image.aspectRatio -20, size+10, (size * image.aspectRatio)+40);	
 	    ctx.closePath(); 
 	    ctx.lineWidth = 10;
 	    ctx.fillStyle = "#FFFFFF"; 
@@ -211,7 +208,7 @@ function drawImage(image)
 	    ctx.font = "20px 'Loved by the King', cursive";
 	    ctx.textBaseline = "middle";
 	    ctx.textAlign = "center";
-	    ctx.fillText(image.desc, 0, 0.5*size*image.aspectRatio + 20, size);}
+	    ctx.fillText(image.desc, 0, 0.5*size*image.aspectRatio + 5, size);}
 	}
     else
     {
@@ -232,14 +229,14 @@ function drawImage(image)
     ctx.shadowColor   = null;    
     }
 
-    ctx.drawImage(image.image, -0.5*size, -0.5*size * image.aspectRatio, size, (size * image.aspectRatio));
+    ctx.drawImage(image.image, -0.5*size, -0.5*size * image.aspectRatio - 15, size, (size * image.aspectRatio));
 
     if (VIDEO == image.type && (image.image.paused ||  image.image.ended))
     	{
     	ctx.beginPath(); 
-	    ctx.moveTo(-0.1*size,-0.1*size);
-	    ctx.lineTo(-0.1*size, 0.1*size);
-	    ctx.lineTo(0.1*size, 0);
+	    ctx.moveTo(-0.1*size,-0.1*size-15);
+	    ctx.lineTo(-0.1*size, 0.1*size-15);
+	    ctx.lineTo(0.1*size, -15);
 	    ctx.closePath(); 
 	    ctx.lineWidth = 10;
 	    ctx.strokeStyle = "#FFFFFF";  
@@ -255,11 +252,11 @@ function myDown(e){
 	var l = objects.length;
     for (var i = l-1; i >= 0; i--)
 	{
-		angle_to_TR = Math.atan2(-1*objects[i].image.height, objects[i].image.width) + objects[i].rotation * Math.PI  / 180;
-                angle_to_BR = Math.atan2(objects[i].image.height, objects[i].image.width) + objects[i].rotation * Math.PI  / 180;
-                angle_to_TL = angle_to_TR + 180 * Math.PI  / 180;
-                angle_to_BL = angle_to_BR + 180 * Math.PI  / 180;
-                mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size),2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio),2)) / 2 + 5;
+    	angle_to_TR = Math.atan2(-1 * (convertSize(objects[i].size) * objects[i].aspectRatio + 30), convertSize(objects[i].size)) + objects[i].rotation * Math.PI  / 180;
+        angle_to_BR = Math.atan2((convertSize(objects[i].size) * objects[i].aspectRatio + 30), convertSize(objects[i].size)) + objects[i].rotation * Math.PI  / 180;
+        angle_to_TL = angle_to_TR + 180 * Math.PI  / 180;
+        angle_to_BL = angle_to_BR + 180 * Math.PI  / 180;
+        mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size),2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio + 30),2)) / 2;
 		//Rotate hotspot
 		if (    objects[i].loaded && 
 				(  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_TR)  * mag_to_corner + hotspot_size/2 
@@ -380,12 +377,16 @@ function render()
         if (objects[i].loaded)
             {
             drawImage(objects[i]);
-
-            angle_to_TR = Math.atan2(-1*objects[i].image.height, objects[i].image.width) + objects[i].rotation * Math.PI  / 180;
-            angle_to_BR = Math.atan2(objects[i].image.height, objects[i].image.width) + objects[i].rotation * Math.PI  / 180;
+//            console.log(Math.atan2(-1 * convertSize(objects[i].size) * objects[i].aspectRatio + 30, convertSize(objects[i].size)) + objects[i].rotation * Math.PI  / 180);
+//            console.log("Height: " + (-1 * convertSize(objects[i].size) * objects[i].aspectRatio + 30));
+//            console.log(convertSize(objects[i].size));
+            
+            
+            angle_to_TR = Math.atan2(-1 * (convertSize(objects[i].size) * objects[i].aspectRatio + 30), convertSize(objects[i].size)) + objects[i].rotation * Math.PI  / 180;
+            angle_to_BR = Math.atan2((convertSize(objects[i].size) * objects[i].aspectRatio + 30), convertSize(objects[i].size)) + objects[i].rotation * Math.PI  / 180;
             angle_to_TL = angle_to_TR + 180 * Math.PI  / 180;
             angle_to_BL = angle_to_BR + 180 * Math.PI  / 180;
-            mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size),2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio),2)) / 2 + 5;
+            mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size),2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio + 30),2)) / 2;
 
             // Hotspots
             if (displayIcons && imageId == i)
