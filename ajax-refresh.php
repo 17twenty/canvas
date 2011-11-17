@@ -16,19 +16,21 @@
     while($row = mysql_fetch_array($result))
     {
         print "
-        console.log(\"" . $row['id'] . "\");
-        var l = objects.length;
-        for (var i = l-1; i >= 0; i--)
-	{
-            if(objects[i].id == " . $row['id'] . ") 
-            {
-                console.log(\"Found object\");
-                objects[i].x = " . $row['x'] . ";
-                objects[i].y = " . $row['y'] . ";
-                objects[i].z = " . $row['z'] . ";
-                objects[i].size = " . $row['size'] . ";
-                objects[i].rotation = " . $row['rotation'] . ";
-            }
+        if (sequence < $sequence)
+        {
+	        var l = objects.length;
+	        for (var i = l-1; i >= 0; i--)
+			{
+	            if(objects[i].id == " . $row['id'] . ") 
+	            {
+	                console.log(\"Object " . $row['id']. " changed!\");
+	                objects[i].x = " . $row['x'] . ";
+	                objects[i].y = " . $row['y'] . ";
+	                objects[i].z = " . $row['z'] . ";
+	                objects[i].size = " . $row['size'] . ";
+	                objects[i].rotation = " . $row['rotation'] . ";
+	            }
+	        }
         }
         ";
     }
