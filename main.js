@@ -195,14 +195,20 @@ function drawImage(image)
     if (1)
 	{
     	ctx.beginPath(); 
-	    ctx.rect(-0.5*size-5, -0.5 * size * image.aspectRatio -20, size+10, (size * image.aspectRatio)+40);	
+	    ctx.rect(-0.5*size-10, -0.5 * size * image.aspectRatio -25, size+20, (size * image.aspectRatio)+50);	
 	    ctx.closePath(); 
-	    ctx.lineWidth = 10;
+	    //ctx.lineWidth = 10;
 	    ctx.fillStyle = "#FFFFFF"; 
-	    ctx.strokeStyle = "#FFFFFF"; 
-	    ctx.lineCap = "square";
-	    ctx.stroke(); 
+	    //ctx.strokeStyle = "#FFFFFF"; 
+	    //ctx.lineCap = "square";
+	    //ctx.stroke(); 
 	    ctx.fill();
+
+	    ctx.shadowOffsetX = 0;
+	    ctx.shadowOffsetY = 0;
+	    ctx.shadowBlur    = 0;
+	    ctx.shadowColor   = null;    
+	    
 	    if(fontsLoaded)
 	    {ctx.fillStyle = "#000000"; 
 	    ctx.font = "20px 'Loved by the King', cursive";
@@ -223,10 +229,10 @@ function drawImage(image)
     
     
     {
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-    ctx.shadowBlur    = 0;
-    ctx.shadowColor   = null;    
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.shadowBlur    = 0;
+        ctx.shadowColor   = null;    
     }
 
     ctx.drawImage(image.image, -0.5*size, -0.5*size * image.aspectRatio - 15, size, (size * image.aspectRatio));
@@ -247,14 +253,7 @@ function drawImage(image)
 
     ctx.restore();  // Restore co-ordinate system
 }
-function angle_cursor_to_corner(e, i, angle, mag )
-{
-//	console.log("angle: " + angle + ", mag: " + mag);
-//	console.log("post:  " + (objects[i].x * window.innerWidth + Math.cos(angle) * mag) + ", " + (objects[i].y * window.innerHeight + Math.sin(angle) * mag));
-//	console.log("angle_cursor_to_corner: " + e.pageY + " - " + (objects[i].y * window.innerHeight + Math.sin(angle) * mag) + ", " + e.pageX + " - " + (objects[i].x * window.innerWidth + Math.cos(angle) * mag));
-//	console.log("angle_cursor_to_corner: " + e.pageY + " - (" + objects[i].y * window.innerHeight + " + " + Math.sin(angle) * mag + "), " + e.pageX + " - " + objects[i].x * window.innerWidth + " + " + Math.cos(angle) * mag);
-	return Math.atan2(e.pageY - (objects[i].y * window.innerHeight + Math.sin(angle) * mag), e.pageX - (objects[i].x * window.innerWidth + Math.cos(angle) * mag) ) / Math.PI  * 180;
-}
+function angle_cursor_to_corner(e, i, angle, mag ) { return Math.atan2(e.pageY - (objects[i].y * window.innerHeight + Math.sin(angle) * mag), e.pageX - (objects[i].x * window.innerWidth + Math.cos(angle) * mag) ) / Math.PI  * 180; }
 
 function clean_angle(angle) {
 	if (angle > 180) angle -= 360;
@@ -268,7 +267,6 @@ function clean_angle_rad(angle) {
 	}
 
 function myDown(e){
-	console.log("My Down");
 	var l = objects.length;
     for (var i = l-1; i >= 0; i--)
 	{
@@ -278,39 +276,17 @@ function myDown(e){
         var angle_to_TL = clean_angle_rad(angle_to_BR + Math.PI);
         var mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size),2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio + 30),2)) / 2;
         
-		if(i==l-1)
-		{
-			//console.log("pre:  " + (objects[i].x * window.innerWidth + Math.cos(angle_to_TL) * mag_to_corner) + ", " + (objects[i].y * window.innerHeight + Math.sin(angle_to_TL) * mag_to_corner));
-			console.log("e.pageY: " + e.pageY + " - " + objects[i].y * window.innerHeight + " " + Math.sin(angle_to_TL) * mag_to_corner + ", " + e.pageX + " - " + objects[i].x * window.innerWidth + " " + Math.cos(angle_to_TL) * mag_to_corner);
-
-			var cursor_TL = angle_cursor_to_corner(e, i, angle_to_TL, mag_to_corner); 
-			var cursor_TR = angle_cursor_to_corner(e, i, angle_to_TR, mag_to_corner);
-			var cursor_BR = angle_cursor_to_corner(e, i, angle_to_BR, mag_to_corner);
-			var cursor_BL = angle_cursor_to_corner(e, i, angle_to_BL, mag_to_corner);
-
-			var TL_TR = clean_angle(objects[i].rotation);
-			var TR_BR = clean_angle(objects[i].rotation + 90);
-			var BR_BL = clean_angle(objects[i].rotation + 180);
-			var BL_TL = clean_angle(objects[i].rotation + 270);
-			
-			
-//			console.log("TR_BR   : " + TR_BR);
-//			console.log("rotation: " + (objects[i].rotation + 90));
-			
-//			console.log("cursor_TL - TL_TR: " + cursor_TL + " - " + TL_TR + " = " + clean_angle(cursor_TL - TL_TR));
-//			console.log("cursor_TR - TR_BR: " + cursor_TR + " - " + TR_BR + " = " + clean_angle(cursor_TR - TR_BR));
-//			console.log("cursor_BR - BR_BL: " + cursor_BR + " - " + BR_BL + " = " + clean_angle(cursor_BR - BR_BL));
-//			console.log("cursor_BL - BL_TL: " + cursor_BL + " - " + BL_TL + " = " + clean_angle(cursor_BL - BL_TL));
-
-//			console.log("cursor_TL - TL_TR: " + clean_angle(cursor_TL - TL_TR));
-//			console.log("cursor_TR - TR_BR: " + clean_angle(cursor_TR - TR_BR));
-//			console.log("cursor_BR - BR_BL: " + clean_angle(cursor_BR - BR_BL));
-//			console.log("cursor_BL - BL_TL: " + clean_angle(cursor_BL - BL_TL));
-			
-			if ((clean_angle(cursor_TL - TL_TR) > 0) && (clean_angle(cursor_TR - TR_BR) > 0) && (clean_angle(cursor_BR - BR_BL) > 0) && (clean_angle(cursor_BL - BL_TL) > 0)) console.log("BL_TL inside");
-			
-		}
 		
+		var cursor_TL = angle_cursor_to_corner(e, i, angle_to_TL, mag_to_corner); 
+		var cursor_TR = angle_cursor_to_corner(e, i, angle_to_TR, mag_to_corner);
+		var cursor_BR = angle_cursor_to_corner(e, i, angle_to_BR, mag_to_corner);
+		var cursor_BL = angle_cursor_to_corner(e, i, angle_to_BL, mag_to_corner);
+
+		var TL_TR = clean_angle(objects[i].rotation);
+		var TR_BR = clean_angle(objects[i].rotation + 90);
+		var BR_BL = clean_angle(objects[i].rotation + 180);
+		var BL_TL = clean_angle(objects[i].rotation + 270);
+			
 		//Rotate hotspot
 		if (    objects[i].loaded && 
 				(  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_TR)  * mag_to_corner + hotspot_size/2 
@@ -344,13 +320,8 @@ function myDown(e){
 			return;
 		}
 		//Move hotspot
-		else if (  e.pageX < convertx(objects[i].x, objects[i].size) + convertSize(objects[i].size) + hotspot_size/2 
-				&& e.pageX > convertx(objects[i].x, objects[i].size) - hotspot_size/2
-				&& e.pageY < converty(objects[i].y, objects[i].size, objects[i].aspectRatio) + (convertSize(objects[i].size) * objects[i].aspectRatio) + hotspot_size/2
-				&& e.pageY > converty(objects[i].y, objects[i].size, objects[i].aspectRatio) -hotspot_size/2)	
-		{ // TODO: Improve move hotspot to support rotation
-
-
+		else if ((clean_angle(cursor_TL - TL_TR) > 0) && (clean_angle(cursor_TR - TR_BR) > 0) && (clean_angle(cursor_BR - BR_BL) > 0) && (clean_angle(cursor_BL - BL_TL) > 0)) 
+		{
 			if (objects[i].z < maxz) {
 				objects[i].z = maxz+1;
 				objects.sort(sortNumber);
