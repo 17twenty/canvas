@@ -13,6 +13,12 @@
         <canvas id="myCanvas" width="500" height="500" style="border:0px">
             Your browser does not support the canvas element.
         </canvas>
+        
+<input id="fileupload" type="file" name="files[]" multiple>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<script src="jquery.iframe-transport.js"></script>
+<script src="jquery.fileupload.js"></script>
 
         <script type="text/javascript" src="main.js"> </script>
         <?php

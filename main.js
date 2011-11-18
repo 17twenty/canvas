@@ -97,14 +97,29 @@ function init()
 	// Set Framerate
 	renderTimeout = setInterval(render,50);
 	
-	canvas.addEventListener("dragover", function(e) {
-		e.preventDefault();
-		//e.dataTransfer.files.
-	}, true);
-	canvas.addEventListener("drop", function(e) {
-		e.preventDefault();
-		console.log("Dropped!");
-	}, true);
+//	canvas.addEventListener("dragover", function(e) {
+//		e.preventDefault();
+//	}, true);
+//	canvas.addEventListener("drop", function(e) {
+//		e.preventDefault();
+//		var files = e.dataTransfer.files;
+//		console.log(files.length + " files")
+//		alert("Dropped: " + files[0].name);
+//	}, true);
+	
+	$(function () {
+	    $('#fileupload').fileupload({
+	        dataType: 'json',
+	        url: 'php/index.php',
+	        done: function (e, data) {
+	            $.each(data.result, function (index, file) {
+					var image = "<img src='" + file.url + "'/>";
+	                console.log(image);
+	                addObject(10, IMAGE, 0.5, 0.5, 10, 0.2, 0, "Upload", file.url);
+	            });
+	        }
+	    });
+	});
 }
 
 function CanvasImage() {
