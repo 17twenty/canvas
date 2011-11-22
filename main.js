@@ -165,8 +165,8 @@ function init()
 	    });
 	});
 	
-	window.addEventListener("MozTouchDown", myDown, true);
-	window.addEventListener("MozTouchUp"  , myUp  , true);
+	window.addEventListener("MozTouchDown", myDown, false);
+	window.addEventListener("MozTouchUp"  , myUp  , false);
 //	window.addEventListener("MozTouchMove", myTouchMove, false);
 //	window.addEventListener("MozTouchUp"  , myTouchUp  , false);
 }
@@ -316,12 +316,14 @@ function clean_angle_rad(angle) {
 	}
 
 function myDown(e){
+	console.log("myDown");
 	if (e.streamId == null)
 		{
 		if (touches[2].active || touches[3].active || touch == true)
 			return
 		console.log("Click");
 		touch = false;
+		canvas.onmouseup = myUp;
 		}
 	else
 		{
@@ -422,7 +424,6 @@ function myDown(e){
 //					touches[2].oldx = touches[2].x;
 //					touches[2].oldy = touches[2].y;
 //					}
-				console.log("X: " + e.pageX);
 				console.log("Object: " + objects[i].id);
 				touches[e.streamId].object = objects[i].id;
 				touches[e.streamId].oldx = e.pageX;
@@ -484,7 +485,7 @@ function myMove(e){
     	touches[e.streamId].y = e.clientY;	
 
 		single_touch_flag = ((touches[2].active && touches[3].active && (touches[2].object == touches[3].object)) == false);
-    	if (single_touch_flag)
+    	if (single_touch_flag == false)
     	{
     		if (multitouch == false) 
     		{
@@ -544,7 +545,8 @@ function myMove(e){
 }
 
 function myUp(e){
-
+	console.log("myUp");
+	canvas.onmouseup = null;
 	if (e.streamId != null)
 	{
 		touches[e.streamId].active = false;
@@ -552,14 +554,18 @@ function myUp(e){
 		{
 			touch_flag = false;
 			touch = false;
-			single_touch_flag = false;
 			removeEventListener("MozTouchMove", myMove, false);
 		}
 
+    	objectId = findObjectId(touches[e.streamId].object);
+		imageId = objectId;
 		console.log("TouchUp: " + e.streamId);
+		
 	}
-	else
+	//else
 	{
+	    currentX = e.pageX;
+	    currentY = e.pageY;
 		canvas.onmousemove = null;
 		removeIcons=setTimeout("displayIcons = false;",3000);
 		if (moved_flag == false && drag_flag) {
@@ -568,7 +574,7 @@ function myUp(e){
 				if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else objects[imageId].image.pause();
 			}
 		}
-		if(drag_flag || rotate_flag){
+		if(drag_flag || rotate_flag || single_touch_flag){
 
 			if (	(currentX >= binX ) &&
 					(currentX <= binX + binSize) &&
@@ -611,6 +617,7 @@ function myUp(e){
 	drag_flag = false;
 	rotate_flag = false;
 	resize_flag = false;
+	single_touch_flag = false;
     render();
     	
 }
@@ -674,7 +681,7 @@ function render()
 }
 
 init();
-canvas.onmousedown = function () {setTimeout(myDown,10);};
-canvas.onmouseup = myUp;
+canvas.onmousedown = myDown;//function () {setTimeout(myDown,10);};
+
 
 
