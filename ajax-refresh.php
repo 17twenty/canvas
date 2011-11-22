@@ -16,7 +16,7 @@
     while($row = mysql_fetch_array($result))
     {
         print "
-        if (sequence < $sequence)
+        if (sequence < $newsequence)
         {
 	        var l = objects.length;
 	        for (var i = l-1; i >= 0; i--)
@@ -35,6 +35,7 @@
         ";
     }
     print "sequence = $newsequence;
+    objects.sort(sortNumber);
     render();\n"
     
 ?>

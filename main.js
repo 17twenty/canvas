@@ -475,9 +475,14 @@ function findObjectId (id){
 }
 
 function myMove(e){
-    moved_flag = true;
-    if (touch && e.streamId != null)
+    if (e.type != "MozTouchMove") moved_flag = true;
+    else
+   // if (touch && e.streamId != null)
     {
+    	//Work around for hyper sensitive touch events
+    	if ( (e.pageX < touches[e.streamId].oldx - 3) || (e.pageX > touches[e.streamId].oldx + 3) || (e.pageY < touches[e.streamId].oldy - 3) || (e.pageY > touches[e.streamId].oldy + 3) ) moved_flag = true;
+    		
+    		
     	if (touches[e.streamId].active == false) return;
     	objectId = findObjectId(touches[e.streamId].object);
     	//console.log(e.streamId + ":" + touches[e.streamId].object);
@@ -489,7 +494,6 @@ function myMove(e){
     	{
     		if (multitouch == false) 
     		{
-    			console.log("Mutitouch!");
     			multitouch = true;
 
     			touches[2].oldx = touches[2].x;
@@ -501,9 +505,7 @@ function myMove(e){
     			temp_y = (objects[objectId].y * window.innerHeight) - (touches[2].oldy + touches[3].oldy) / 2;
 
     			resise_ratio = objects[objectId].size / (Math.sqrt (Math.pow((touches[2].y - (objects[objectId].y * window.innerHeight)),2) + Math.pow((touches[2].x - (objects[objectId].x * window.innerWidth)),2) ));
-    			console.log("resise_ratio: " + resise_ratio);
     			clean_angle(rotate_offset = Math.atan2((touches[2].y - touches[3].y) , (touches[2].x - touches[3].x)) * 180 / Math.PI - objects[objectId].rotation);
-    			console.log("rotate_offset: " + rotate_offset);
     		}
     		if (e.streamId == 2)
     		{
@@ -550,12 +552,7 @@ function myUp(e){
 	if (e.streamId != null)
 	{
 		touches[e.streamId].active = false;
-		if (touches[2].active == 0 && touches[3].active == 0)
-		{
-			touch_flag = false;
-			touch = false;
-			removeEventListener("MozTouchMove", myMove, false);
-		}
+		
 
     	objectId = findObjectId(touches[e.streamId].object);
 		imageId = objectId;
@@ -568,7 +565,7 @@ function myUp(e){
 	    currentY = e.pageY;
 		canvas.onmousemove = null;
 		removeIcons=setTimeout("displayIcons = false;",3000);
-		if (moved_flag == false && drag_flag) {
+		if (moved_flag == false && (drag_flag || touch_flag)) {
 			if (objects[imageId].type == VIDEO) {
 				console.log("Play Video");
 				if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else objects[imageId].image.pause();
@@ -612,6 +609,12 @@ function myUp(e){
 			}
 
 		}
+	}
+	if (touches[2].active == 0 && touches[3].active == 0)
+	{
+		touch_flag = false;
+		touch = false;
+		removeEventListener("MozTouchMove", myMove, false);
 	}
 	moved_flag = false;
 	drag_flag = false;
