@@ -33,6 +33,7 @@ var resize_flag = false;
 var move_flag = false; 
 var moved_flag = false; 
 var touch_flag = false;
+var single_touch_flag = false;
 var canvas;
 var ctx;
 var v;
@@ -88,6 +89,8 @@ var removeIcons;
     binImageEmpty.src = "Recylebin_empty.png";
     var binImageFull = new Image;
     binImageFull.src = "Recylebin_full.png";
+    var target = new Image;
+    target.src = "target.png";
     
     
 
@@ -315,18 +318,16 @@ function clean_angle_rad(angle) {
 function myDown(e){
 	if (e.streamId == null)
 		{
-		if (touches[2].active || touches[3].active)
+		if (touches[2].active || touches[3].active || touch == true)
 			return
 		console.log("Click");
-		touch = 0;
+		touch = false;
 		}
 	else
 		{
-		touch = 1;
+		touch = true;
 		console.log("Touch: " + e.streamId);
-		touches[e.streamId].x = e.clientX;
-		touches[e.streamId].y = e.clientY;
-	    touches[e.streamId].active = true;
+	    touches[e.streamId].active = false; //reset
 		}
 	
     currentX = e.pageX;
@@ -408,6 +409,9 @@ function myDown(e){
 			
 			if (touch)
 			{
+				touches[e.streamId].x = e.clientX;
+				touches[e.streamId].y = e.clientY;
+			    touches[e.streamId].active = true;
 //				if (e.streamId == 3 && (touches[2].object != touches[3].object))
 //					touches[2].object = touches[3].object - 1;
 //				if (e.streamId == 2 && (touches[2].object != touches[3].object))
@@ -428,7 +432,7 @@ function myDown(e){
 		    	touches[e.streamId].x = e.pageX;
 		    	touches[e.streamId].y = e.pageY;	
 				
-				window.addEventListener("MozTouchMove", myMove, true);
+				window.addEventListener("MozTouchMove", myMove, false);
 				canvas.onmousemove = null;
 				touch_flag = true;
 			}
@@ -466,49 +470,63 @@ function findObjectId (id){
     	
 	}
     return null;
+    console.error("Object not found");
 }
 
 function myMove(e){
     moved_flag = true;
     if (touch && e.streamId != null)
     {
+    	if (touches[e.streamId].active == false) return;
     	objectId = findObjectId(touches[e.streamId].object);
     	//console.log(e.streamId + ":" + touches[e.streamId].object);
     	touches[e.streamId].x = e.clientX;
     	touches[e.streamId].y = e.clientY;	
-    	if (touches[2].active && touches[3].active && (touches[2].object == touches[3].object))
-    		{
+
+		single_touch_flag = ((touches[2].active && touches[3].active && (touches[2].object == touches[3].object)) == false);
+    	if (single_touch_flag)
+    	{
     		if (multitouch == false) 
-    			{
+    		{
     			console.log("Mutitouch!");
     			multitouch = true;
 
-				touches[2].oldx = touches[2].x;
-				touches[2].oldy = touches[2].y;
-				touches[3].oldx = touches[3].x;
-				touches[3].oldy = touches[3].y;
-    			
+    			touches[2].oldx = touches[2].x;
+    			touches[2].oldy = touches[2].y;
+    			touches[3].oldx = touches[3].x;
+    			touches[3].oldy = touches[3].y;
+
     			temp_x = (objects[objectId].x * window.innerWidth) - (touches[2].oldx + touches[3].oldx) / 2;
     			temp_y = (objects[objectId].y * window.innerHeight) - (touches[2].oldy + touches[3].oldy) / 2;
-    			
-    			}
-	    	objects[objectId].x = (((touches[2].x + touches[3].x) / 2) + temp_x) / window.innerWidth;
-			objects[objectId].y = (((touches[2].y + touches[3].y) / 2) + temp_y) / window.innerHeight;
-    		}
-    	else
-    		{
-    		if (multitouch == true)
-    			{
 
-				touches[e.streamId].tempx = (objects[objectId].x * window.innerWidth) - e.pageX;;
-				touches[e.streamId].tempy = (objects[objectId].y * window.innerHeight) - e.pageY;;
-    			
-    			}
-    		multitouch = false;
-	    	objects[objectId].x = (touches[e.streamId].x + touches[e.streamId].tempx) / window.innerWidth;
-			objects[objectId].y = (touches[e.streamId].y + touches[e.streamId].tempy) / window.innerHeight;
+    			resise_ratio = objects[objectId].size / (Math.sqrt (Math.pow((touches[2].y - (objects[objectId].y * window.innerHeight)),2) + Math.pow((touches[2].x - (objects[objectId].x * window.innerWidth)),2) ));
+    			console.log("resise_ratio: " + resise_ratio);
+    			clean_angle(rotate_offset = Math.atan2((touches[2].y - touches[3].y) , (touches[2].x - touches[3].x)) * 180 / Math.PI - objects[objectId].rotation);
+    			console.log("rotate_offset: " + rotate_offset);
     		}
-		//render(); //Increase Framerate while moving an object
+    		if (e.streamId == 2)
+    		{
+    			objects[objectId].rotation = clean_angle(Math.atan2((touches[2].y - touches[3].y) , (touches[2].x - touches[3].x)) * 180 / Math.PI - rotate_offset);
+    			//objects[objectId].rotation = (Math.atan2((touches[2].y - (objects[objectId].y * window.innerHeight)) , (touches[2].x - (objects[objectId].x * window.innerWidth))) * 180 / Math.PI - rotate_offset);
+    			objects[objectId].size = (Math.sqrt(Math.pow((touches[2].y - (objects[objectId].y * window.innerHeight)),2) + Math.pow((touches[2].x - (objects[objectId].x * window.innerWidth)),2)) * resise_ratio );
+    			objects[objectId].x = (((touches[2].x + touches[3].x) / 2) + temp_x) / window.innerWidth;
+    			objects[objectId].y = (((touches[2].y + touches[3].y) / 2) + temp_y) / window.innerHeight;
+    		}
+    	}
+    	else
+    	{
+    		if (multitouch == true)
+    		{
+
+    			touches[e.streamId].tempx = (objects[objectId].x * window.innerWidth) - e.pageX;;
+    			touches[e.streamId].tempy = (objects[objectId].y * window.innerHeight) - e.pageY;;
+
+    		}
+    		multitouch = false;
+    		objects[objectId].x = (touches[e.streamId].x + touches[e.streamId].tempx) / window.innerWidth;
+    		objects[objectId].y = (touches[e.streamId].y + touches[e.streamId].tempy) / window.innerHeight;
+    	}
+    	render(); //Increase Framerate while moving an object
     }
     currentX = e.pageX;
     currentY = e.pageY;
@@ -518,7 +536,7 @@ function myMove(e){
 		render(); //Increase Framerate while moving an object
 	}
 	if (rotate_flag)	{
-		objects[imageId].rotation = (Math.atan2((e.pageY - (objects[imageId].y * window.innerHeight)) , (e.pageX - (objects[imageId].x * window.innerWidth))) * 180 / Math.PI - rotate_offset);
+		objects[imageId].rotation = clean_angle(Math.atan2((e.pageY - (objects[imageId].y * window.innerHeight)) , (e.pageX - (objects[imageId].x * window.innerWidth))) * 180 / Math.PI - rotate_offset);
 		objects[imageId].size = (Math.sqrt(Math.pow((e.pageY - (objects[imageId].y * window.innerHeight)),2) + Math.pow((e.pageX - (objects[imageId].x * window.innerWidth)),2)) * resise_ratio );
 		if (objects[imageId].size < 0.05) objects[imageId].size = 0.05;
 		render(); //Increase Framerate while moving an object
@@ -526,67 +544,75 @@ function myMove(e){
 }
 
 function myUp(e){
-    if (touch && e.streamId != null)
-    {
-    	removeEventListener("MozTouchMove", myMove, false);
-    	touches[e.streamId].active = false;
-    	if (touches[2].active == 0 && touches[3].active == 0)
-    		touch_flag = false;
-    }
-	
-	
-	canvas.onmousemove = null;
-    removeIcons=setTimeout("displayIcons = false;",3000);
-	if (moved_flag == false && drag_flag) {
-		if (objects[imageId].type == VIDEO) {
-			console.log("Play Video");
-			if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else objects[imageId].image.pause();
-		}
-	}
-	if(drag_flag || rotate_flag){
 
-    	if (	(currentX >= binX ) &&
-    			(currentX <= binX + binSize) &&
-    			(currentY >= binY) &&
-    			(currentY <= binY + binSize)  )
-    	{
-    		$.ajax({
-    			  url: "ajax-delete.php",
-    			  cache: false,
-    			  success: function(html){
-    				  console.log(html);
-    			    $("#results").append(html);
-    			  }
-    			});
-    		objects.splice(imageId, 1);
-    	}
-    	else
-    	{
-    		$.ajax({
-    			type: "GET",
-    			url: "ajax-update.php",
-    			data: {
-    				id: objects[imageId].id,
-    				x: objects[imageId].x,
-    				y: objects[imageId].y,
-    				z: objects[imageId].z,
-    				size: objects[imageId].size,
-    				rotation: objects[imageId].rotation
-    			},
-    			cache: false,
-    			success: function(html){
-    				sequence = html;
-    			}
-    		});
-    	}
-		
+	if (e.streamId != null)
+	{
+		touches[e.streamId].active = false;
+		if (touches[2].active == 0 && touches[3].active == 0)
+		{
+			touch_flag = false;
+			touch = false;
+			single_touch_flag = false;
+			removeEventListener("MozTouchMove", myMove, false);
+		}
+
+		console.log("TouchUp: " + e.streamId);
+	}
+	else
+	{
+		canvas.onmousemove = null;
+		removeIcons=setTimeout("displayIcons = false;",3000);
+		if (moved_flag == false && drag_flag) {
+			if (objects[imageId].type == VIDEO) {
+				console.log("Play Video");
+				if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else objects[imageId].image.pause();
+			}
+		}
+		if(drag_flag || rotate_flag){
+
+			if (	(currentX >= binX ) &&
+					(currentX <= binX + binSize) &&
+					(currentY >= binY) &&
+					(currentY <= binY + binSize)  )
+			{
+				$.ajax({
+					url: "ajax-delete.php",
+					cache: false,
+					success: function(html){
+						console.log(html);
+						$("#results").append(html);
+					}
+				});
+				objects.splice(imageId, 1);
+			}
+			else
+			{
+				$.ajax({
+					type: "GET",
+					url: "ajax-update.php",
+					data: {
+						id: objects[imageId].id,
+						x: objects[imageId].x,
+						y: objects[imageId].y,
+						z: objects[imageId].z,
+						size: objects[imageId].size,
+						rotation: objects[imageId].rotation
+					},
+					cache: false,
+					success: function(html){
+						sequence = html;
+					}
+				});
+			}
+
+		}
 	}
 	moved_flag = false;
 	drag_flag = false;
 	rotate_flag = false;
 	resize_flag = false;
     render();
-	
+    	
 }
 function sortNumber(a,b) { return a.z - b.z; }
 
@@ -632,7 +658,7 @@ function render()
     		}
     	}
     }
-    if (drag_flag)
+    if (drag_flag || single_touch_flag)
     {
     	if (	(currentX >= binX ) &&
     			(currentX <= binX + binSize) &&
@@ -643,10 +669,12 @@ function render()
     		ctx.drawImage(binImageEmpty, binX, binY, binSize, binSize);
     		
     }
+    if(touches[2].active) ctx.drawImage(target, touches[2].x - 20 , touches[2].y - 20 , 40, 40);
+    if(touches[3].active) ctx.drawImage(target, touches[3].x - 20 , touches[3].y - 20 , 40, 40);
 }
 
 init();
-canvas.onmousedown = myDown;
+canvas.onmousedown = function () {setTimeout(myDown,10);};
 canvas.onmouseup = myUp;
 
 
