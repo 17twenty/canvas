@@ -24,6 +24,7 @@ VIDEO = 1;
 
 UPDATE = 0;
 REFRESH = 1;
+DELETE = 2;
 
 // GLOBALS
 var drag_flag = false; 
@@ -47,6 +48,9 @@ var maxz = 0;
 var displayIcons = false;
 var fontsLoaded = false;
 
+var currentX;
+var currentY;
+
 var hotspot_size = 45;
 var removeIcons;
 
@@ -55,6 +59,12 @@ var removeIcons;
     bgImage.onload = function(){bgImage.loaded = true;console.log("Background Loaded");render();};
     var rotateImage = new Image;
     rotateImage.src = "ball.png";
+    var binImageEmpty = new Image;
+    binImageEmpty.src = "Recylebin_empty.png";
+    var binImageFull = new Image;
+    binImageFull.src = "Recylebin_full.png";
+    
+    
 
 v = document.getElementById('v');
 
@@ -92,20 +102,26 @@ function init()
 	resize();
 
 	console.log("Initialisation");
-	Refresh=setInterval("ajaxFunction(0,REFRESH);",10000);
+	
+	Refresh=setInterval(function() {
+		$.ajax({
+			  type: "GET",
+			  url: "ajax-refresh.php",
+			  data: {sequence: sequence},
+			  dataType: "script"
+			});
+	},10000);
 
 	// Set Framerate
-	renderTimeout = setInterval(render,50);
+	renderTimeout = setInterval(render,50); //50
 	
 //	canvas.addEventListener("dragover", function(e) {
 //		e.preventDefault();
 //	}, true);
-//	canvas.addEventListener("drop", function(e) {
-//		e.preventDefault();
-//		var files = e.dataTransfer.files;
-//		console.log(files.length + " files")
-//		alert("Dropped: " + files[0].name);
-//	}, true);
+	canvas.addEventListener("drop", function(e) {
+		dropX = e.pageX;
+		dropY = e.pageY;
+	}, true);
 	
 	$(function () {
 	    $('#fileupload').fileupload({
@@ -114,8 +130,8 @@ function init()
 	        done: function (e, data) {
 	            $.each(data.result, function (index, file) {
 					var image = "<img src='" + file.url + "'/>";
-	                console.log(image);
-	                addObject(10, IMAGE, 0.5, 0.5, 10, 0.2, 0, "Upload", file.url);
+	                console.log("e.pageX = " + dropX);
+	                addObject(10, IMAGE, (dropX / window.innerWidth), (dropY / window.innerHeight), 10, 0.2, ((Math.random()*60)-30), "Upload", file.url);
 	            });
 	        }
 	    });
@@ -186,6 +202,10 @@ function resize()
 {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+
+	binSize = Math.floor(0.08 * window.innerWidth);
+	binX = window.innerWidth -  binSize - 10;
+	binY = window.innerHeight - binSize - 10;
 	
 	render();
 }
@@ -219,7 +239,7 @@ function drawImage(image)
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
     ctx.shadowBlur    = 0;
-    ctx.shadowColor   = null;    
+    ctx.shadowColor   = 'rgba(0, 0, 0, 0)';    
 
     if(fontsLoaded)
     {
@@ -262,6 +282,10 @@ function clean_angle_rad(angle) {
 	}
 
 function myDown(e){
+
+    currentX = e.pageX;
+    currentY = e.pageY;
+    
 	var l = objects.length;
     for (var i = l-1; i >= 0; i--)
 	{
@@ -341,16 +365,18 @@ function myDown(e){
 
 function myMove(e){
     moved_flag = true;
+    currentX = e.pageX;
+    currentY = e.pageY;
 	if (drag_flag)	{
 		objects[imageId].x = (e.pageX + temp_x) / window.innerWidth;
 		objects[imageId].y = (e.pageY + temp_y) / window.innerHeight;
-		render();
+		render(); //Increase Framerate while moving an object
 	}
 	if (rotate_flag)	{
 		objects[imageId].rotation = (Math.atan2((e.pageY - (objects[imageId].y * window.innerHeight)) , (e.pageX - (objects[imageId].x * window.innerWidth))) * 180 / Math.PI - rotate_offset);
 		objects[imageId].size = (Math.sqrt(Math.pow((e.pageY - (objects[imageId].y * window.innerHeight)),2) + Math.pow((e.pageX - (objects[imageId].x * window.innerWidth)),2)) * resise_ratio );
 		if (objects[imageId].size < 0.05) objects[imageId].size = 0.05;
-		// render(); //Fixing the processor load issue
+		render(); //Increase Framerate while moving an object
 	}
 }
 
@@ -360,15 +386,48 @@ function myUp(){
 	if (moved_flag == false && drag_flag) {
 		if (objects[imageId].type == VIDEO) {
 			console.log("Play Video");
-			if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else objects[imageId].image.pause(); 
-
-			// draw(objects[imageId].image);
+			if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else objects[imageId].image.pause();
 		}
 	}
-	else
-	{
-		// console.log(sequence);
-		ajaxFunction(imageId, UPDATE);
+	if((drag_flag && moved_flag) || rotate_flag){
+
+    	if (	(currentX >= binX ) &&
+    			(currentX <= binX + binSize) &&
+    			(currentY >= binY) &&
+    			(currentY <= binY + binSize)  )
+    	{
+    		//ajaxFunction(imageId, DELETE);
+    		$.ajax({
+    			  url: "ajax-delete.php",
+    			  cache: false,
+    			  success: function(html){
+    				  console.log(html);
+    			    $("#results").append(html);
+    			  }
+    			});
+    		objects.splice(imageId, 1);
+    	}
+    	else
+    		{
+    		$.ajax({
+    			type: "GET",
+  			  	url: "ajax-update.php",
+  			  	data: {
+  			  		id: objects[imageId].id,
+  			  		x: objects[imageId].x,
+  			  		y: objects[imageId].y,
+  			  		z: objects[imageId].z,
+  			  		size: objects[imageId].size,
+  			  		rotation: objects[imageId].rotation
+  			  		},
+  			  	cache: false,
+  			  	success: function(html){
+  			  		sequence = html;
+  			  	}
+  			});
+    		//ajaxFunction(imageId, UPDATE);
+    		}
+		
 	}
 	moved_flag = false;
 	drag_flag = false;
@@ -391,92 +450,48 @@ function render()
     var l = objects.length;
     
     for (var i = 0; i < l; i++) 
-	{
-        if (objects[i].z > maxz) maxz = objects[i].z;
-        // if (objects[i].type == VIDEO) objects[i].loaded =
-		// (objects[i].image.readyState > 0);
-        if (objects[i].loaded)
-            {
-            drawImage(objects[i]);
-// console.log(Math.atan2(-1 * convertSize(objects[i].size) *
-// objects[i].aspectRatio + 30, convertSize(objects[i].size)) +
-// objects[i].rotation * Math.PI / 180);
-// console.log("Height: " + (-1 * convertSize(objects[i].size) *
-// objects[i].aspectRatio + 30));
-// console.log(convertSize(objects[i].size));
-            
-            
-            var angle_to_TR = Math.atan2(-1 * (convertSize(objects[i].size) * objects[i].aspectRatio + 30), convertSize(objects[i].size)) + objects[i].rotation * Math.PI  / 180;
-            var angle_to_BR = Math.atan2((convertSize(objects[i].size) * objects[i].aspectRatio + 30), convertSize(objects[i].size)) + objects[i].rotation * Math.PI  / 180;
-            var angle_to_BL = angle_to_TR + Math.PI;
-            var angle_to_TL = angle_to_BR + Math.PI;
-            var mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size),2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio + 30),2)) / 2;
-
-            // Hotspots
-            if (displayIcons && imageId == i)
-                {
-                ctx.drawImage(rotateImage, objects[i].x * window.innerWidth + Math.cos(angle_to_TR) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_TR) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
-                ctx.drawImage(rotateImage, objects[i].x * window.innerWidth + Math.cos(angle_to_BR) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_BR) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
-                ctx.drawImage(rotateImage, objects[i].x * window.innerWidth + Math.cos(angle_to_TL) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_TL) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
-                ctx.drawImage(rotateImage, objects[i].x * window.innerWidth + Math.cos(angle_to_BL) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_BL) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
-                }
-            }
-        }
-}
-
-
-
-// Browser Support Code
-function ajaxFunction(id, action){
-    var ajaxRequest;  // The variable that makes Ajax possible!
-
-    try{
-        // Opera 8.0+, Firefox, Safari
-        ajaxRequest = new XMLHttpRequest();
-    } catch (e){
-        // Internet Explorer Browsers
-        try{
-            ajaxRequest = new ActiveXObject("Msxml2.XMLHTTP");
-        } catch (e) {
-            try{
-                ajaxRequest = new ActiveXObject("Microsoft.XMLHTTP");
-            } catch (e){
-                // Something went wrong
-                alert("Your browser broke!");
-                return false;
-            }
-        }
-    }
-    // Create a function that will receive data sent from the server
-    ajaxRequest.onreadystatechange = function(){
-        if(ajaxRequest.readyState == 4){
-            // objects.length = 0;
-            // render();
-            switch(action)
-            {
-                case UPDATE:
-                    sequence = ajaxRequest.responseText;
-                    break;
-                case REFRESH:
-                    eval(ajaxRequest.responseText);
-                    break;
-            }
-        }
-    };
-    switch(action)
     {
-        case UPDATE:
-            var queryString = "?id=" + objects[id].id + "&x=" + objects[id].x + "&y=" + objects[id].y + "&z=" + objects[id].z + "&size=" + objects[id].size + "&rotation=" + objects[id].rotation;
-            ajaxRequest.open("GET", "ajax-update.php" + queryString, true);
-            break;
-        case REFRESH:
-            var queryString = "?sequence=" + sequence;
-            ajaxRequest.open("GET", "ajax-refresh.php" + queryString, true); 
-            break;
+    	if (objects[i].z > maxz) maxz = objects[i].z;
+    	// if (objects[i].type == VIDEO) objects[i].loaded =
+    	// (objects[i].image.readyState > 0);
+    	if (objects[i].loaded)
+    	{
+    		drawImage(objects[i]);
+//  		console.log(Math.atan2(-1 * convertSize(objects[i].size) *
+//  		objects[i].aspectRatio + 30, convertSize(objects[i].size)) +
+//  		objects[i].rotation * Math.PI / 180);
+//  		console.log("Height: " + (-1 * convertSize(objects[i].size) *
+//  		objects[i].aspectRatio + 30));
+//  		console.log(convertSize(objects[i].size));
+
+
+    		var angle_to_TR = Math.atan2(-1 * (convertSize(objects[i].size) * objects[i].aspectRatio + 30), convertSize(objects[i].size)) + objects[i].rotation * Math.PI  / 180;
+    		var angle_to_BR = Math.atan2((convertSize(objects[i].size) * objects[i].aspectRatio + 30), convertSize(objects[i].size)) + objects[i].rotation * Math.PI  / 180;
+    		var angle_to_BL = angle_to_TR + Math.PI;
+    		var angle_to_TL = angle_to_BR + Math.PI;
+    		var mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size),2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio + 30),2)) / 2;
+
+    		// Hotspots
+    		if (displayIcons && imageId == i)
+    		{
+    			ctx.drawImage(rotateImage, objects[i].x * window.innerWidth + Math.cos(angle_to_TR) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_TR) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
+    			ctx.drawImage(rotateImage, objects[i].x * window.innerWidth + Math.cos(angle_to_BR) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_BR) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
+    			ctx.drawImage(rotateImage, objects[i].x * window.innerWidth + Math.cos(angle_to_TL) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_TL) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
+    			ctx.drawImage(rotateImage, objects[i].x * window.innerWidth + Math.cos(angle_to_BL) * mag_to_corner - hotspot_size/2, objects[i].y * window.innerHeight + Math.sin(angle_to_BL) * mag_to_corner-hotspot_size/2, hotspot_size,hotspot_size);
+    		}
+    	}
     }
-    ajaxRequest.send(null); 
-    // render();
-    
+    if (drag_flag)
+    {
+    	if (	(currentX >= binX ) &&
+    			(currentX <= binX + binSize) &&
+    			(currentY >= binY) &&
+    			(currentY <= binY + binSize)  )
+    		ctx.drawImage(binImageFull, binX, binY, binSize, binSize);
+    	else
+    		ctx.drawImage(binImageEmpty, binX, binY, binSize, binSize);
+    		
+    }
 }
 
 init();
