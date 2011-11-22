@@ -113,7 +113,7 @@ function init()
 	},10000);
 
 	// Set Framerate
-	renderTimeout = setInterval(render,50); //50
+	renderTimeout = setInterval(autoRender,50); //50
 	
 //	canvas.addEventListener("dragover", function(e) {
 //		e.preventDefault();
@@ -327,6 +327,13 @@ function myDown(e){
                         && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_BL) * mag_to_corner - hotspot_size/2 )
                 )	
 		{
+			if (objects[i].z < maxz) {
+				objects[i].z = maxz+1;
+				objects.sort(sortNumber);
+				render();
+				myDown(e); 
+				return;
+			}
 			temp_x = (e.pageX);
 			temp_y = (e.pageY);
 			resise_ratio = objects[i].size / (Math.sqrt(Math.pow((e.pageY - (objects[i].y * window.innerHeight)),2) + Math.pow((e.pageX - (objects[i].x * window.innerWidth)),2) ));
@@ -389,14 +396,13 @@ function myUp(){
 			if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else objects[imageId].image.pause();
 		}
 	}
-	if((drag_flag && moved_flag) || rotate_flag){
+	if(drag_flag || rotate_flag){
 
     	if (	(currentX >= binX ) &&
     			(currentX <= binX + binSize) &&
     			(currentY >= binY) &&
     			(currentY <= binY + binSize)  )
     	{
-    		//ajaxFunction(imageId, DELETE);
     		$.ajax({
     			  url: "ajax-delete.php",
     			  cache: false,
@@ -408,38 +414,50 @@ function myUp(){
     		objects.splice(imageId, 1);
     	}
     	else
-    		{
+    	{
     		$.ajax({
     			type: "GET",
-  			  	url: "ajax-update.php",
-  			  	data: {
-  			  		id: objects[imageId].id,
-  			  		x: objects[imageId].x,
-  			  		y: objects[imageId].y,
-  			  		z: objects[imageId].z,
-  			  		size: objects[imageId].size,
-  			  		rotation: objects[imageId].rotation
-  			  		},
-  			  	cache: false,
-  			  	success: function(html){
-  			  		sequence = html;
-  			  	}
-  			});
-    		//ajaxFunction(imageId, UPDATE);
-    		}
+    			url: "ajax-update.php",
+    			data: {
+    				id: objects[imageId].id,
+    				x: objects[imageId].x,
+    				y: objects[imageId].y,
+    				z: objects[imageId].z,
+    				size: objects[imageId].size,
+    				rotation: objects[imageId].rotation
+    			},
+    			cache: false,
+    			success: function(html){
+    				sequence = html;
+    			}
+    		});
+    	}
 		
 	}
 	moved_flag = false;
 	drag_flag = false;
 	rotate_flag = false;
 	resize_flag = false;
-        // render();
+    render();
 	
 }
 function sortNumber(a,b)
 {
     // console.log(a.z + " - " + b.z);
     return a.z - b.z;
+}
+
+function autoRender()
+{ 
+	var l = objects.length;
+	var videoPlaying = false;
+    for (var i = 0; i < l; i++) 
+    {
+    	if(objects[i].type == VIDEO && (objects[i].image.paused || objects[i].image.ended) != true)
+    		videoPlaying = true;
+    }
+	if (drag_flag || rotate_flag || videoPlaying)
+	render();
 }
 
 function render()
@@ -452,19 +470,9 @@ function render()
     for (var i = 0; i < l; i++) 
     {
     	if (objects[i].z > maxz) maxz = objects[i].z;
-    	// if (objects[i].type == VIDEO) objects[i].loaded =
-    	// (objects[i].image.readyState > 0);
     	if (objects[i].loaded)
     	{
     		drawImage(objects[i]);
-//  		console.log(Math.atan2(-1 * convertSize(objects[i].size) *
-//  		objects[i].aspectRatio + 30, convertSize(objects[i].size)) +
-//  		objects[i].rotation * Math.PI / 180);
-//  		console.log("Height: " + (-1 * convertSize(objects[i].size) *
-//  		objects[i].aspectRatio + 30));
-//  		console.log(convertSize(objects[i].size));
-
-
     		var angle_to_TR = Math.atan2(-1 * (convertSize(objects[i].size) * objects[i].aspectRatio + 30), convertSize(objects[i].size)) + objects[i].rotation * Math.PI  / 180;
     		var angle_to_BR = Math.atan2((convertSize(objects[i].size) * objects[i].aspectRatio + 30), convertSize(objects[i].size)) + objects[i].rotation * Math.PI  / 180;
     		var angle_to_BL = angle_to_TR + Math.PI;
