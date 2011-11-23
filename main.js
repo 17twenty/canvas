@@ -81,7 +81,7 @@ var hotspot_size = 45;
 var removeIcons;
 
     var bgImage = new Image;
-    bgImage.src = "bg.png";
+    bgImage.src = "bg.jpg";
     bgImage.onload = function(){bgImage.loaded = true;console.log("Background Loaded");render();};
     var rotateImage = new Image;
     rotateImage.src = "ball.png";
@@ -91,23 +91,6 @@ var removeIcons;
     binImageFull.src = "Recylebin_full.png";
     var target = new Image;
     target.src = "target.png";
-    
-    
-
-v = document.getElementById('v');
-
-
-// function draw(v) {
-// if(v.paused || v.ended)
-// {
-// clearTimeout(videoTimeout);
-// }
-// else
-// {
-// render();
-// videoTimeout = setTimeout(draw,20,v);
-// }
-// }
 	
 function init()
 {
@@ -138,14 +121,12 @@ function init()
 			  data: {sequence: sequence},
 			  dataType: "script"
 			});
-	},10000);
+	},5000);
 
 	// Set Framerate
 	renderTimeout = setInterval(autoRender,50); //50
 	
-//	canvas.addEventListener("dragover", function(e) {
-//		e.preventDefault();
-//	}, true);
+	// Drag and drop stuff
 	canvas.addEventListener("drop", function(e) {
 		dropX = e.pageX;
 		dropY = e.pageY;
@@ -157,9 +138,20 @@ function init()
 	        url: 'php/index.php',
 	        done: function (e, data) {
 	            $.each(data.result, function (index, file) {
-					var image = "<img src='" + file.url + "'/>";
-	                console.log("e.pageX = " + dropX);
-	                addObject(10, IMAGE, (dropX / window.innerWidth), (dropY / window.innerHeight), 10, 0.2, ((Math.random()*60)-30), "Upload", file.url);
+	            	$.ajax({
+						type: "GET",
+						url: "ajax-insert.php",
+						data: {
+							x:  (dropX / window.innerWidth),
+							y: (dropY / window.innerHeight),
+							size: 0.2,
+							rotation: ((Math.random()*60)-30),
+							name: "Upload",
+							type: IMAGE,
+							link: ".."+file.large_url
+						},
+						  dataType: "script"
+					});
 	            });
 	        }
 	    });
@@ -167,8 +159,6 @@ function init()
 	
 	window.addEventListener("MozTouchDown", myDown, false);
 	window.addEventListener("MozTouchUp"  , myUp  , false);
-//	window.addEventListener("MozTouchMove", myTouchMove, false);
-//	window.addEventListener("MozTouchUp"  , myTouchUp  , false);
 }
 
 function CanvasImage() {
@@ -571,7 +561,7 @@ function myUp(e){
 				if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else objects[imageId].image.pause();
 			}
 		}
-		if(drag_flag || rotate_flag || single_touch_flag){
+		if(drag_flag || single_touch_flag){
 
 			if (	(currentX >= binX ) &&
 					(currentX <= binX + binSize) &&
@@ -581,10 +571,8 @@ function myUp(e){
 				$.ajax({
 					url: "ajax-delete.php",
 					cache: false,
-					success: function(html){
-						console.log(html);
-						$("#results").append(html);
-					}
+					data: {id:objects[imageId].id},
+					dataType: "script"
 				});
 				objects.splice(imageId, 1);
 			}

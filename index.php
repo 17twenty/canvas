@@ -27,7 +27,7 @@
                 $query = "SELECT MAX(sequence) FROM content";
                 $result = mysql_query($query) or die(mysql_error()); 
                 $row = mysql_fetch_array($result);
-                $sequence = $row['MAX(sequence)'] + 1;
+                $sequence = $row['MAX(sequence)'];
                 // Retrieve all the data from the "example" table
                 $result = mysql_query("SELECT * FROM content ORDER BY z")
                 or die(mysql_error("Database Table Error"));  

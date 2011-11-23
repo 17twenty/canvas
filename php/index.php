@@ -33,20 +33,18 @@ class UploadHandler
                 // Uncomment the following version to restrict the size of
                 // uploaded images. You can also add additional versions with
                 // their own upload directories:
-                /*
                 'large' => array(
                     'upload_dir' => dirname(__FILE__).'/files/',
                     'upload_url' => dirname($_SERVER['PHP_SELF']).'/files/',
                     'max_width' => 1920,
                     'max_height' => 1200
-                ),
-                */
-                'thumbnail' => array(
-                    'upload_dir' => dirname(__FILE__).'/thumbnails/',
-                    'upload_url' => $this->getFullUrl().'/thumbnails/',
-                    'max_width' => 80,
-                    'max_height' => 80
-                )
+                )//,
+//                 'thumbnail' => array(
+//                     'upload_dir' => dirname(__FILE__).'/thumbnails/',
+//                     'upload_url' => $this->getFullUrl().'/thumbnails/',
+//                     'max_width' => 80,
+//                     'max_height' => 80
+//                 )
             )
         );
         if ($options) {
