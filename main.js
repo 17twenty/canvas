@@ -50,7 +50,7 @@ var imageId = 0;
 var maxz = 0;
 var displayIcons = false;
 var fontsLoaded = false;
-var touch;
+var touch = false;
 var multitouch = false;
 var touches = {};
 touches[2] = {
@@ -159,6 +159,7 @@ function init()
 	
 	window.addEventListener("MozTouchDown", myDown, false);
 	window.addEventListener("MozTouchUp"  , myUp  , false);
+	window.addEventListener("mousedown"  , function(e) {setTimeout(myDown(e),20);} , false);  //{myDown(e);};
 }
 
 function CanvasImage() {
@@ -192,6 +193,8 @@ function addObject(id, type, x, y, z, size, rotation, desc, src) {
 	{
 		tempImage.image = document.createElement('video');
 		tempImage.image.src = src;
+		tempImage.image.height = 0;
+		tempImage.image.width = 0;
 		document.body.appendChild(tempImage.image);
 		var newid = objects.push(tempImage) - 1;
 		objects[newid].image.newid = newid;
@@ -212,9 +215,9 @@ function addObject(id, type, x, y, z, size, rotation, desc, src) {
 // Workaround to render Video and get AspectRatio for Chrome
 window.addEventListener('loadedmetadata', function(e) { 
 	console.log("Video " + e.target.src + " Loaded");
-	e.target.height = e.target.videoHeight;
-	e.target.width = e.target.videoWidth;
-	objects[e.target.newid].aspectRatio = e.target.height / e.target.width; 
+	//e.target.height = e.target.videoHeight;
+	//e.target.width = e.target.videoWidth;
+	objects[e.target.newid].aspectRatio = e.target.videoHeight / e.target.videoWidth; 
 	objects[e.target.newid].loaded = true;
 	render();
 }, true);
@@ -233,16 +236,16 @@ function resize()
 	render();
 }
 
-function convertx(x, size) {return (x - (size/2)) * window.innerWidth ;}
-function converty(y, size, aspectRatio) {return (y * window.innerHeight - ((size/2)* aspectRatio) * window.innerWidth);}
-function convertSize(size) {return size * window.innerWidth;}
+function convertx(x, size) {return Math.floor((x - (size/2)) * window.innerWidth) ;}
+function converty(y, size, aspectRatio) {return Math.floor((y * window.innerHeight - ((size/2)* aspectRatio) * window.innerWidth));}
+function convertSize(size) {return Math.floor(size * window.innerWidth);}
 
 function drawImage(image)
 {
 	var size = convertSize(image.size);
     // console.log("drawImage " + v.width + ", " + v.height);
     ctx.save();  // Save co-ordinate system
-    ctx.translate(image.x * window.innerWidth, image.y * window.innerHeight);
+    ctx.translate(Math.floor(image.x * window.innerWidth), Math.floor(image.y * window.innerHeight));
     ctx.rotate(image.rotation * Math.PI / 180);
 
     if((drag_flag || rotate_flag || resize_flag) && image.z == maxz)    
@@ -255,7 +258,7 @@ function drawImage(image)
     
     // Frame around each item
     ctx.beginPath(); 
-    ctx.rect(-0.5*size-10, -0.5 * size * image.aspectRatio -25, size+20, (size * image.aspectRatio)+50);	
+    ctx.rect(-0.5*size-10, Math.floor(-0.5 * size * image.aspectRatio -25), size+20, Math.floor((size * image.aspectRatio)+50));	
     ctx.fillStyle = "#FFFFFF"; 
     ctx.fill();
 
@@ -401,20 +404,7 @@ function myDown(e){
 			
 			if (touch)
 			{
-				touches[e.streamId].x = e.clientX;
-				touches[e.streamId].y = e.clientY;
 			    touches[e.streamId].active = true;
-//				if (e.streamId == 3 && (touches[2].object != touches[3].object))
-//					touches[2].object = touches[3].object - 1;
-//				if (e.streamId == 2 && (touches[2].object != touches[3].object))
-//					touches[3].object = touches[2].object - 1;
-				
-//				if (e.streamId == 3 && (touches[2].object == touches[3].object))
-//					{
-//					touches[2].oldx = touches[2].x;
-//					touches[2].oldy = touches[2].y;
-//					}
-				console.log("Object: " + objects[i].id);
 				touches[e.streamId].object = objects[i].id;
 				touches[e.streamId].oldx = e.pageX;
 				touches[e.streamId].oldy = e.pageY;
@@ -443,15 +433,6 @@ function myDown(e){
 	}
 }
 
-function myTouchMove(e){
-	touches[e.streamId].x = e.clientX;
-	touches[e.streamId].y = e.clientY;
-}
-function myTouchUp(e){
-	touches[e.streamId].x = e.clientX;
-	touches[e.streamId].y = e.clientY;
-	touches[e.streamId].active = false;
-}
 function findObjectId (id){
 	var l = objects.length;
     for (var i = l-1; i >= 0; i--)
@@ -500,10 +481,10 @@ function myMove(e){
     		if (e.streamId == 2)
     		{
     			objects[objectId].rotation = clean_angle(Math.atan2((touches[2].y - touches[3].y) , (touches[2].x - touches[3].x)) * 180 / Math.PI - rotate_offset);
-    			//objects[objectId].rotation = (Math.atan2((touches[2].y - (objects[objectId].y * window.innerHeight)) , (touches[2].x - (objects[objectId].x * window.innerWidth))) * 180 / Math.PI - rotate_offset);
     			objects[objectId].size = (Math.sqrt(Math.pow((touches[2].y - (objects[objectId].y * window.innerHeight)),2) + Math.pow((touches[2].x - (objects[objectId].x * window.innerWidth)),2)) * resise_ratio );
     			objects[objectId].x = (((touches[2].x + touches[3].x) / 2) + temp_x) / window.innerWidth;
     			objects[objectId].y = (((touches[2].y + touches[3].y) / 2) + temp_y) / window.innerHeight;
+            	render(); //Increase Framerate while moving an object
     		}
     	}
     	else
@@ -518,8 +499,8 @@ function myMove(e){
     		multitouch = false;
     		objects[objectId].x = (touches[e.streamId].x + touches[e.streamId].tempx) / window.innerWidth;
     		objects[objectId].y = (touches[e.streamId].y + touches[e.streamId].tempy) / window.innerHeight;
+        	render(); //Increase Framerate while moving an object
     	}
-    	render(); //Increase Framerate while moving an object
     }
     currentX = e.pageX;
     currentY = e.pageY;
@@ -672,7 +653,6 @@ function render()
 }
 
 init();
-canvas.onmousedown = myDown;//function () {setTimeout(myDown,10);};
 
 
 
