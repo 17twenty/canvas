@@ -1,0 +1,10 @@
+# Files for git to ignore
+
+PublicKey.txt
+PuttyPrivateKey.ppk
+
+*.ogv
+*.ogg
+
+.settings/
+.project

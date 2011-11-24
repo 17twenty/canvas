@@ -30,6 +30,7 @@
 	                objects[i].z = " . $row['z'] . ";
 	                objects[i].size = " . $row['size'] . ";
 	                objects[i].rotation = " . $row['rotation'] . ";
+	                objects[i].desc = " . $row['name'] . ";
 	                isnew = false;
 	            }
 	        }
