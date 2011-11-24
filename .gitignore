@@ -8,3 +8,6 @@ PuttyPrivateKey.ppk
 
 .settings/
 .project
+
+
+*.db

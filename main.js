@@ -85,18 +85,18 @@ var hotspot_size = 45;
 var removeIcons;
 
     var bgImage = new Image;
-    bgImage.src = "bg.jpg";
+    bgImage.src = "gfx/bg.jpg";
     bgImage.onload = function(){bgImage.loaded = true;console.log("Background Loaded");render();};
     var rotateImage = new Image;
-    rotateImage.src = "ball.png";
+    rotateImage.src = "gfx/ball.png";
     var binImageEmpty = new Image;
-    binImageEmpty.src = "Recylebin_empty.png";
+    binImageEmpty.src = "gfx/Recylebin_empty.png";
     var binImageFull = new Image;
-    binImageFull.src = "Recylebin_full.png";
+    binImageFull.src = "gfx/Recylebin_full.png";
     var target = new Image;
-    target.src = "target.png";
+    target.src = "gfx/target.png";
     var add = new Image;
-    add.src = "add.png";
+    add.src = "gfx/add.png";
 	
 function init()
 {
