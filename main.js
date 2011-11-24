@@ -37,6 +37,7 @@ var moved_flag = false;
 var touch_flag = false;
 var single_touch_flag = false;
 var canvas;
+var popupContact;
 var ctx;
 var v;
 var x = 0.5;
@@ -115,6 +116,7 @@ function init()
 		});
 	});
 	canvas = document.getElementById("myCanvas");
+	popupContact = document.getElementById("popupContact");
 	ctx=canvas.getContext("2d");
 	resize();
 
@@ -242,6 +244,9 @@ function resize()
 	addSize = Math.floor(0.05 * window.innerWidth);
 	addX = window.innerWidth -  addSize - 10;
 	addY = 10;
+	
+	popupContact.style.width = Math.floor(window.innerWidth * 0.9) + "px";
+	popupContact.style.height = Math.floor(window.innerHeight * 0.8) + "px";
 	
 	render();
 }
