@@ -91,6 +91,8 @@ var removeIcons;
     binImageFull.src = "Recylebin_full.png";
     var target = new Image;
     target.src = "target.png";
+    var add = new Image;
+    add.src = "add.png";
 	
 function init()
 {
@@ -159,7 +161,11 @@ function init()
 	
 	window.addEventListener("MozTouchDown", myDown, false);
 	window.addEventListener("MozTouchUp"  , myUp  , false);
-	window.addEventListener("mousedown"  , function(e) {setTimeout(myDown(e),20);} , false);  //{myDown(e);};
+	window.addEventListener("mousedown"  , function(e) { 
+		setTimeout(function() { 
+			myDown(e); 
+			} ,20); 
+		} , false);
 }
 
 function CanvasImage() {
@@ -232,6 +238,10 @@ function resize()
 	binSize = Math.floor(0.08 * window.innerWidth);
 	binX = window.innerWidth -  binSize - 10;
 	binY = window.innerHeight - binSize - 10;
+	
+	addSize = Math.floor(0.05 * window.innerWidth);
+	addX = window.innerWidth -  addSize - 10;
+	addY = 10;
 	
 	render();
 }
@@ -327,109 +337,118 @@ function myDown(e){
 	
     currentX = e.pageX;
     currentY = e.pageY;
-    
-	var l = objects.length;
-    for (var i = l-1; i >= 0; i--)
+    //Add Hotspot
+    if (	(e.pageX >= addX ) &&
+			(e.pageX <= addX + addSize) &&
+			(e.pageY >= addY) &&
+			(e.pageY <= addY + addSize)  )
 	{
-    	
-        var angle_to_TR = clean_angle_rad(Math.atan2(-1 * (convertSize(objects[i].size) * objects[i].aspectRatio + 30), convertSize(objects[i].size)) + (objects[i].rotation * Math.PI  / 180));
-        var angle_to_BR = clean_angle_rad(Math.atan2((convertSize(objects[i].size) * objects[i].aspectRatio + 30), convertSize(objects[i].size)) + (objects[i].rotation * Math.PI  / 180));
-        var angle_to_BL = clean_angle_rad(angle_to_TR + Math.PI);
-        var angle_to_TL = clean_angle_rad(angle_to_BR + Math.PI);
-        var mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size),2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio + 30),2)) / 2;
-        
-		
-		var cursor_TL = angle_cursor_to_corner(e.pageX, e.pageY, i, angle_to_TL, mag_to_corner); 
-		var cursor_TR = angle_cursor_to_corner(e.pageX, e.pageY, i, angle_to_TR, mag_to_corner);
-		var cursor_BR = angle_cursor_to_corner(e.pageX, e.pageY, i, angle_to_BR, mag_to_corner);
-		var cursor_BL = angle_cursor_to_corner(e.pageX, e.pageY, i, angle_to_BL, mag_to_corner);
-
-		var TL_TR = clean_angle(objects[i].rotation);
-		var TR_BR = clean_angle(objects[i].rotation + 90);
-		var BR_BL = clean_angle(objects[i].rotation + 180);
-		var BL_TL = clean_angle(objects[i].rotation + 270);
-			
-		// Rotate hotspot
-		if (    objects[i].loaded && touch == false &&
-				(  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_TR)  * mag_to_corner + hotspot_size/2 
-                        && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_TR)  * mag_to_corner - hotspot_size/2
-                        && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_TR) * mag_to_corner + hotspot_size/2 
-                        && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_TR) * mag_to_corner - hotspot_size/2 )  ||
-                        (  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_TL)  * mag_to_corner + hotspot_size/2 
-                        && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_TL)  * mag_to_corner - hotspot_size/2
-                        && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_TL) * mag_to_corner + hotspot_size/2 
-                        && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_TL) * mag_to_corner - hotspot_size/2 )  ||
-                        (  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_BR)  * mag_to_corner + hotspot_size/2 
-                        && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_BR)  * mag_to_corner - hotspot_size/2
-                        && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_BR) * mag_to_corner + hotspot_size/2 
-                        && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_BR) * mag_to_corner - hotspot_size/2 )  ||
-                        (  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_BL)  * mag_to_corner + hotspot_size/2 
-                        && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_BL)  * mag_to_corner - hotspot_size/2
-                        && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_BL) * mag_to_corner + hotspot_size/2 
-                        && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_BL) * mag_to_corner - hotspot_size/2 )
-                )	
+		alert("Add Item");
+	}
+	else 
+	{
+		var l = objects.length;
+	    for (var i = l-1; i >= 0; i--)
 		{
-			if (objects[i].z < maxz) {
-				objects[i].z = maxz+1;
-				objects.sort(sortNumber);
-				render();
-				myDown(e); 
-				return;
-			}
-			temp_x = (e.pageX);
-			temp_y = (e.pageY);
+	    	
+	        var angle_to_TR = clean_angle_rad(Math.atan2(-1 * (convertSize(objects[i].size) * objects[i].aspectRatio + 30), convertSize(objects[i].size)) + (objects[i].rotation * Math.PI  / 180));
+	        var angle_to_BR = clean_angle_rad(Math.atan2((convertSize(objects[i].size) * objects[i].aspectRatio + 30), convertSize(objects[i].size)) + (objects[i].rotation * Math.PI  / 180));
+	        var angle_to_BL = clean_angle_rad(angle_to_TR + Math.PI);
+	        var angle_to_TL = clean_angle_rad(angle_to_BR + Math.PI);
+	        var mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size),2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio + 30),2)) / 2;
+	        
 			
-			canvas.onmousemove = myMove;
-			imageId = i;
-			resise_ratio = objects[i].size / (Math.sqrt(Math.pow((e.pageY - (objects[i].y * window.innerHeight)),2) + Math.pow((e.pageX - (objects[i].x * window.innerWidth)),2) ));
-			rotate_offset = Math.atan2((temp_y - (objects[i].y * window.innerHeight)) , (temp_x - (objects[i].x * window.innerWidth))) * 180 / Math.PI - objects[i].rotation;
-            rotate_flag = true;
-			displayIcons = true;
-			if (removeIcons != null) clearTimeout(removeIcons);
-			return;
-		}
-		// Move hotspot
-		else if (objects[i].loaded && (clean_angle(cursor_TL - TL_TR) > 0) && (clean_angle(cursor_TR - TR_BR) > 0) && (clean_angle(cursor_BR - BR_BL) > 0) && (clean_angle(cursor_BL - BL_TL) > 0)) 
-		{
-			if (objects[i].z < maxz) {
-				objects[i].z = maxz+1;
-				objects.sort(sortNumber);
-				render();
-				myDown(e); 
-				return;
-			}
-
-			temp_x = (objects[i].x * window.innerWidth) - e.pageX;
-			temp_y = (objects[i].y * window.innerHeight) - e.pageY;
+			var cursor_TL = angle_cursor_to_corner(e.pageX, e.pageY, i, angle_to_TL, mag_to_corner); 
+			var cursor_TR = angle_cursor_to_corner(e.pageX, e.pageY, i, angle_to_TR, mag_to_corner);
+			var cursor_BR = angle_cursor_to_corner(e.pageX, e.pageY, i, angle_to_BR, mag_to_corner);
+			var cursor_BL = angle_cursor_to_corner(e.pageX, e.pageY, i, angle_to_BL, mag_to_corner);
+	
+			var TL_TR = clean_angle(objects[i].rotation);
+			var TR_BR = clean_angle(objects[i].rotation + 90);
+			var BR_BL = clean_angle(objects[i].rotation + 180);
+			var BL_TL = clean_angle(objects[i].rotation + 270);
 			
-			if (touch)
+			// Rotate hotspot
+			if (    objects[i].loaded && touch == false &&
+					(  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_TR)  * mag_to_corner + hotspot_size/2 
+	                        && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_TR)  * mag_to_corner - hotspot_size/2
+	                        && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_TR) * mag_to_corner + hotspot_size/2 
+	                        && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_TR) * mag_to_corner - hotspot_size/2 )  ||
+	                        (  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_TL)  * mag_to_corner + hotspot_size/2 
+	                        && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_TL)  * mag_to_corner - hotspot_size/2
+	                        && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_TL) * mag_to_corner + hotspot_size/2 
+	                        && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_TL) * mag_to_corner - hotspot_size/2 )  ||
+	                        (  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_BR)  * mag_to_corner + hotspot_size/2 
+	                        && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_BR)  * mag_to_corner - hotspot_size/2
+	                        && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_BR) * mag_to_corner + hotspot_size/2 
+	                        && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_BR) * mag_to_corner - hotspot_size/2 )  ||
+	                        (  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_BL)  * mag_to_corner + hotspot_size/2 
+	                        && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_BL)  * mag_to_corner - hotspot_size/2
+	                        && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_BL) * mag_to_corner + hotspot_size/2 
+	                        && e.pageY > objects[i].y * window.innerHeight + Math.sin(angle_to_BL) * mag_to_corner - hotspot_size/2 )
+	                )	
 			{
-			    touches[e.streamId].active = true;
-				touches[e.streamId].object = objects[i].id;
-				touches[e.streamId].oldx = e.pageX;
-				touches[e.streamId].oldy = e.pageY;
-				touches[e.streamId].tempx = temp_x;
-				touches[e.streamId].tempy = temp_y;
-		    	touches[e.streamId].x = e.pageX;
-		    	touches[e.streamId].y = e.pageY;	
+				if (objects[i].z < maxz) {
+					objects[i].z = maxz+1;
+					objects.sort(sortNumber);
+					render();
+					myDown(e); 
+					return;
+				}
+				temp_x = (e.pageX);
+				temp_y = (e.pageY);
 				
-				window.addEventListener("MozTouchMove", myMove, false);
-				canvas.onmousemove = null;
-				touch_flag = true;
-			}
-			else
-			{
-				drag_flag = true;
-				imageId = i;
 				canvas.onmousemove = myMove;
-				moved_flag = false;
-				displayIcons = true;  
+				imageId = i;
+				resise_ratio = objects[i].size / (Math.sqrt(Math.pow((e.pageY - (objects[i].y * window.innerHeight)),2) + Math.pow((e.pageX - (objects[i].x * window.innerWidth)),2) ));
+				rotate_offset = Math.atan2((temp_y - (objects[i].y * window.innerHeight)) , (temp_x - (objects[i].x * window.innerWidth))) * 180 / Math.PI - objects[i].rotation;
+	            rotate_flag = true;
+				displayIcons = true;
 				if (removeIcons != null) clearTimeout(removeIcons);
+				return;
 			}
-			
-			return;
+			// Move hotspot
+			else if (objects[i].loaded && (clean_angle(cursor_TL - TL_TR) > 0) && (clean_angle(cursor_TR - TR_BR) > 0) && (clean_angle(cursor_BR - BR_BL) > 0) && (clean_angle(cursor_BL - BL_TL) > 0)) 
+			{
+				if (objects[i].z < maxz) {
+					objects[i].z = maxz+1;
+					objects.sort(sortNumber);
+					render();
+					myDown(e); 
+					return;
+				}
+	
+				temp_x = (objects[i].x * window.innerWidth) - e.pageX;
+				temp_y = (objects[i].y * window.innerHeight) - e.pageY;
+				
+				if (touch)
+				{
+				    touches[e.streamId].active = true;
+					touches[e.streamId].object = objects[i].id;
+					touches[e.streamId].oldx = e.pageX;
+					touches[e.streamId].oldy = e.pageY;
+					touches[e.streamId].tempx = temp_x;
+					touches[e.streamId].tempy = temp_y;
+			    	touches[e.streamId].x = e.pageX;
+			    	touches[e.streamId].y = e.pageY;	
+					
+					window.addEventListener("MozTouchMove", myMove, false);
+					canvas.onmousemove = null;
+					touch_flag = true;
+				}
+				else
+				{
+					drag_flag = true;
+					imageId = i;
+					canvas.onmousemove = myMove;
+					moved_flag = false;
+					displayIcons = true;  
+					if (removeIcons != null) clearTimeout(removeIcons);
+				}
+				
+				return;
+			}
 		}
-
 	}
 }
 
@@ -637,6 +656,7 @@ function render()
     		}
     	}
     }
+    //Wastebasket
     if (drag_flag || single_touch_flag)
     {
     	if (	(currentX >= binX ) &&
@@ -648,8 +668,9 @@ function render()
     		ctx.drawImage(binImageEmpty, binX, binY, binSize, binSize);
     		
     }
-    if(touches[2].active) ctx.drawImage(target, touches[2].x - 20 , touches[2].y - 20 , 40, 40);
-    if(touches[3].active) ctx.drawImage(target, touches[3].x - 20 , touches[3].y - 20 , 40, 40);
+    if(touches[2].active) ctx.drawImage(target, touches[2].x - 20 , touches[2].y - 20 , 40, 40);	// Target 1
+    if(touches[3].active) ctx.drawImage(target, touches[3].x - 20 , touches[3].y - 20 , 40, 40);	// Target 2
+    ctx.drawImage(add, addX, addY, addSize, addSize);	// Add image
 }
 
 init();
