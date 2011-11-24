@@ -1,22 +1,24 @@
-/*******************************************************************************
+/* Copyright 2011 Cambridge Design Research LLP.
+ * All rights reserved.
  * 
- * Copyright (c) 2011 Cambridge Design Partnership All rights reserved.
+ * This file is part of Canvas.
+ * Canvas is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * 
- * This file is part of the Canvas Project
+ * Canvas is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  * 
- * Commercial Usage Licensees holding a commercial license for the Canvas
- * Project are provided with the rights agreed when taking out this license and
- * are bound to these terms in perpetuity.
+ * You should have received a copy of the GNU General Public License
+ * along with Canvas.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * GNU Lesser General Public License Usage Alternatively, this file may be used
- * under the terms of the GNU Lesser General Public License version 2.1 as
- * published by the Free Software Foundation and appearing in the file
- * LICENSE.LGPL included in the packaging of this file. Please review the
- * following information to ensure the GNU Lesser General Public License version
- * 2.1 requirements will be met:
- * http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
- * 
- ******************************************************************************/
+ * Alternatively, this file may be used in accordance with the terms and 
+ * conditions contained in a signed written agreement between you and 
+ * Cambridge Design Research LLP.
+ */
 
 // CONSTANTS
 IMAGE = 0;
