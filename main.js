@@ -84,20 +84,20 @@ var currentY;
 var hotspot_size = 45;
 var removeIcons;
 
-    var bgImage = new Image;
-    bgImage.src = "gfx/bg.jpg";
-    bgImage.onload = function(){bgImage.loaded = true;console.log("Background Loaded");render();};
-    var rotateImage = new Image;
-    rotateImage.src = "gfx/ball.png";
-    var binImageEmpty = new Image;
-    binImageEmpty.src = "gfx/Recylebin_empty.png";
-    var binImageFull = new Image;
-    binImageFull.src = "gfx/Recylebin_full.png";
-    var target = new Image;
-    target.src = "gfx/target.png";
-    var add = new Image;
-    add.src = "gfx/add.png";
-	
+var bgImage = new Image;
+bgImage.src = "gfx/bg.jpg";
+bgImage.onload = function(){bgImage.loaded = true;console.log("Background Loaded");render();};
+var rotateImage = new Image;
+rotateImage.src = "gfx/ball.png";
+var binImageEmpty = new Image;
+binImageEmpty.src = "gfx/Recylebin_empty.png";
+var binImageFull = new Image;
+binImageFull.src = "gfx/Recylebin_full.png";
+var target = new Image;
+target.src = "gfx/target.png";
+var add = new Image;
+add.src = "gfx/add.png";
+
 function init()
 {
 	google.load("webfont", "1");
@@ -105,7 +105,7 @@ function init()
 		console.log("Start Loading fonts");
 		WebFont.load({
 			google: {
-				families: [ 'Loved by the King' ]
+				families: [ 'Cabin Sketch' ]
 			},
 			active: function(){
 				console.log("Font Loaded");
@@ -280,7 +280,7 @@ function drawImage(image)
     if(fontsLoaded)
     {
     	ctx.fillStyle = "#000000"; 
-    	ctx.font = "20px 'Loved by the King', cursive";
+    	ctx.font = "20px 'Cabin Sketch', cursive";
     	ctx.textBaseline = "middle";
     	ctx.textAlign = "center";
     	ctx.fillText(image.desc, 0, 0.5*size*image.aspectRatio + 5, size);
