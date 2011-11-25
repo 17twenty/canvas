@@ -22,9 +22,9 @@ Installation
 
 1. Install [WAMP](http://www.wampserver.com/en/download.php)
 2. Start apache
-3. Open index.php in a web browser. The code should run in Internet Explorer 9+, 
-   Chrome 15+, or Firefox 8+. At the time of writing, only Firefox Beta supports 
-   multitouch.
+3. Open index.php in a web browser. The code should run in Chrome 15+ or Firefox 8+. 
+   Internet Explorer yet render the canvas elements but will be addressed soon. 
+   At the time of writing, only Firefox Beta supports multitouch.
 
 
 Development
