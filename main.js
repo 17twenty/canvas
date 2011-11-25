@@ -334,9 +334,11 @@ function clean_angle_rad(angle) {
 function myDown(e){
 	if(popupStatus==0)
 		{
+		console.log("myDown");
 		if (e.type != "MozTouchDown")  // click event
 			{
-			if (touches[2].active || touches[3].active || touch || clickBlock)
+			if ((e.mozInputSource > 1)) // check if a 'click' is really a 'touch'
+					//touches[2].active || touches[3].active || touch || clickBlock || (e.mozInputSource > 1))
 				return
 			//console.log("Click");
 			touch = false;
@@ -344,6 +346,7 @@ function myDown(e){
 			}
 		else	// touch event
 			{
+			e.preventDefault();  
 			touch = true;
 			console.log("Touch: " + e.streamId);
 		    //touches[e.streamId].active = false; //reset
@@ -351,7 +354,6 @@ function myDown(e){
 			canvas.onmousemove = null;
 			}
 
-		console.log("myDown");
 	    currentX = e.pageX;
 	    currentY = e.pageY;
 	    //Add Hotspot
