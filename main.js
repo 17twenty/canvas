@@ -252,7 +252,7 @@ function resize()
 	addX = window.innerWidth -  addSize - 10;
 	addY = 10;
 	
-	popupContact.style.width = Math.floor(window.innerWidth * 0.9) + "px";
+	popupContact.style.width = Math.floor(window.innerWidth * 0.7) + "px";
 	popupContact.style.height = Math.floor(window.innerHeight * 0.8) + "px";
 	iframe.style.height = Math.floor(window.innerHeight * 0.8) + "px";
 	
@@ -457,6 +457,7 @@ function myDown(e){
 						//window.addEventListener("MozTouchMove", myMove, true);
 						canvas.onmousemove = null;
 						touch_flag = true;
+						
 					}
 					else
 					{
@@ -514,11 +515,13 @@ function myMove(e){
     			temp_x = (objects[objectId].x * window.innerWidth) - (touches[2].oldx + touches[3].oldx) / 2;
     			temp_y = (objects[objectId].y * window.innerHeight) - (touches[2].oldy + touches[3].oldy) / 2;
 
-    			resise_ratio = objects[objectId].size / (Math.sqrt (Math.pow((touches[2].y - (objects[objectId].y * window.innerHeight)),2) + Math.pow((touches[2].x - (objects[objectId].x * window.innerWidth)),2) ));
+    			//resise_ratio = objects[objectId].size / (Math.sqrt (Math.pow((touches[2].y - (objects[objectId].y * window.innerHeight)),2) + Math.pow((touches[2].x - (objects[objectId].x * window.innerWidth)),2) ));
+    			resise_ratio = objects[objectId].size / (Math.sqrt (Math.pow((touches[2].y - touches[3].y),2) + Math.pow((touches[2].x - touches[3].x),2) ));
     			clean_angle(rotate_offset = Math.atan2((touches[2].y - touches[3].y) , (touches[2].x - touches[3].x)) * 180 / Math.PI - objects[objectId].rotation);
     		}
 			objects[objectId].rotation = clean_angle(Math.atan2((touches[2].y - touches[3].y) , (touches[2].x - touches[3].x)) * 180 / Math.PI - rotate_offset);
-			objects[objectId].size = (Math.sqrt(Math.pow((touches[2].y - (objects[objectId].y * window.innerHeight)),2) + Math.pow((touches[2].x - (objects[objectId].x * window.innerWidth)),2)) * resise_ratio );
+			//objects[objectId].size = (Math.sqrt(Math.pow((touches[2].y - (objects[objectId].y * window.innerHeight)),2) + Math.pow((touches[2].x - (objects[objectId].x * window.innerWidth)),2)) * resise_ratio );
+			objects[objectId].size = (Math.sqrt (Math.pow((touches[2].y - touches[3].y),2) + Math.pow((touches[2].x - touches[3].x),2) ) * resise_ratio );
 			if (objects[imageId].size < minimum_object_size) objects[imageId].size = minimum_object_size;
 			objects[objectId].x = (((touches[2].x + touches[3].x) / 2) + temp_x) / window.innerWidth;
 			objects[objectId].y = (((touches[2].y + touches[3].y) / 2) + temp_y) / window.innerHeight;
