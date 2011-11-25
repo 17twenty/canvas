@@ -173,7 +173,8 @@ function init()
 	window.addEventListener("MozTouchDown", myDown, true);
 	window.addEventListener("MozTouchUp"  , myUp  , true);
 	window.addEventListener("MozTouchMove", myMove, true);
-	window.addEventListener("mousedown"  , function(e) { setTimeout(function() { myDown(e); } ,100); } , false);
+	window.addEventListener("mousedown"  , function(e) { setTimeout(function() { myDown(e); } ,10); } , false);
+	window.addEventListener("mouseup"  , function(e) { setTimeout(function() { myUp(e); } ,10); } , false);
 }
 
 function CanvasImage() {
@@ -339,7 +340,6 @@ function myDown(e){
 				return
 			//console.log("Click");
 			touch = false;
-			canvas.onmouseup = myUp;
 			canvas.onmousemove = myMove;
 			}
 		else	// touch event
@@ -490,63 +490,46 @@ function myMove(e){
 	
     if (e.type != "MozTouchMove") moved_flag = true;
     else
-   // if (touch && e.streamId != null)
     {
-
-		//console.log("move " + e.streamId);
     	//Work around for hyper sensitive touch events
-    	if ( (e.pageX < touches[e.streamId].oldx - 1) || (e.pageX > touches[e.streamId].oldx + 1) || (e.pageY < touches[e.streamId].oldy - 1) || (e.pageY > touches[e.streamId].oldy + 1) ) moved_flag = true;
+    	if ( (e.pageX < touches[e.streamId].oldx - 2) || (e.pageX > touches[e.streamId].oldx + 2) || (e.pageY < touches[e.streamId].oldy - 2) || (e.pageY > touches[e.streamId].oldy + 2) ) moved_flag = true;
     	else
     		return;	
-
-    	//console.log("move " + e.pageX + " " + e.pageY + " " + touches[e.streamId].oldx + " " + touches[e.streamId].oldy);	
 
 		touches[e.streamId].oldx = e.pageX;
 		touches[e.streamId].oldy = e.pageY;
     		
     	if (touches[e.streamId].active == false) return;
     	objectId = findObjectId(touches[e.streamId].object);
-    	//console.log(e.streamId + ":" + touches[e.streamId].object);
     	touches[e.streamId].x = e.clientX;
     	touches[e.streamId].y = e.clientY;	
 
 		single_touch_flag = ((touches[2].active && touches[3].active && (touches[2].object == touches[3].object)) == false);
-    	if (single_touch_flag == false)
-    	{
-    		if (multitouch == false) 
-    		{
+    	if (single_touch_flag == false) {
+    		if (multitouch == false)  {
     			multitouch = true;
-
-
+    			
     			temp_x = (objects[objectId].x * window.innerWidth) - (touches[2].oldx + touches[3].oldx) / 2;
     			temp_y = (objects[objectId].y * window.innerHeight) - (touches[2].oldy + touches[3].oldy) / 2;
 
     			resise_ratio = objects[objectId].size / (Math.sqrt (Math.pow((touches[2].y - (objects[objectId].y * window.innerHeight)),2) + Math.pow((touches[2].x - (objects[objectId].x * window.innerWidth)),2) ));
     			clean_angle(rotate_offset = Math.atan2((touches[2].y - touches[3].y) , (touches[2].x - touches[3].x)) * 180 / Math.PI - objects[objectId].rotation);
     		}
-    		//if (e.streamId == 2)
-    		{
-    			objects[objectId].rotation = clean_angle(Math.atan2((touches[2].y - touches[3].y) , (touches[2].x - touches[3].x)) * 180 / Math.PI - rotate_offset);
-    			objects[objectId].size = (Math.sqrt(Math.pow((touches[2].y - (objects[objectId].y * window.innerHeight)),2) + Math.pow((touches[2].x - (objects[objectId].x * window.innerWidth)),2)) * resise_ratio );
-    			if (objects[imageId].size < 0.05) objects[imageId].size = minimum_object_size;
-    			objects[objectId].x = (((touches[2].x + touches[3].x) / 2) + temp_x) / window.innerWidth;
-    			objects[objectId].y = (((touches[2].y + touches[3].y) / 2) + temp_y) / window.innerHeight;
-            	//render(); //Increase Framerate while moving an object
-    		}
+			objects[objectId].rotation = clean_angle(Math.atan2((touches[2].y - touches[3].y) , (touches[2].x - touches[3].x)) * 180 / Math.PI - rotate_offset);
+			objects[objectId].size = (Math.sqrt(Math.pow((touches[2].y - (objects[objectId].y * window.innerHeight)),2) + Math.pow((touches[2].x - (objects[objectId].x * window.innerWidth)),2)) * resise_ratio );
+			if (objects[imageId].size < minimum_object_size) objects[imageId].size = minimum_object_size;
+			objects[objectId].x = (((touches[2].x + touches[3].x) / 2) + temp_x) / window.innerWidth;
+			objects[objectId].y = (((touches[2].y + touches[3].y) / 2) + temp_y) / window.innerHeight;
     	}
     	else
     	{
-    		if (multitouch == true)
-    		{
-
-    			touches[e.streamId].tempx = (objects[objectId].x * window.innerWidth) - e.pageX;;
-    			touches[e.streamId].tempy = (objects[objectId].y * window.innerHeight) - e.pageY;;
-
+    		if (multitouch == true) {
+    			touches[e.streamId].tempx = (objects[objectId].x * window.innerWidth) - e.pageX;
+    			touches[e.streamId].tempy = (objects[objectId].y * window.innerHeight) - e.pageY;
     		}
     		multitouch = false;
     		objects[objectId].x = (touches[e.streamId].x + touches[e.streamId].tempx) / window.innerWidth;
     		objects[objectId].y = (touches[e.streamId].y + touches[e.streamId].tempy) / window.innerHeight;
-        	//render(); //Increase Framerate while moving an object
     	}
     }
     currentX = e.pageX;
@@ -554,13 +537,11 @@ function myMove(e){
 	if (drag_flag)	{
 		objects[imageId].x = (e.pageX + temp_x) / window.innerWidth;
 		objects[imageId].y = (e.pageY + temp_y) / window.innerHeight;
-		//render(); //Increase Framerate while moving an object
 	}
 	if (rotate_flag)	{
 		objects[imageId].rotation = clean_angle(Math.atan2((e.pageY - (objects[imageId].y * window.innerHeight)) , (e.pageX - (objects[imageId].x * window.innerWidth))) * 180 / Math.PI - rotate_offset);
 		objects[imageId].size = (Math.sqrt(Math.pow((e.pageY - (objects[imageId].y * window.innerHeight)),2) + Math.pow((e.pageX - (objects[imageId].x * window.innerWidth)),2)) * resise_ratio );
-		if (objects[imageId].size < minimum_object_size) objects[imageId].size = 0.05;
-		//render(); //Increase Framerate while moving an object
+		if (objects[imageId].size < minimum_object_size) objects[imageId].size = minimum_object_size;
 	}
 	//render(); //Increase Framerate while moving an object
 }
@@ -588,53 +569,29 @@ function myUp(e){
 				if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else objects[imageId].image.pause();
 			}
 		}
-		console.log("myUp: " + drag_flag + ", " + single_touch_flag);
-		if(drag_flag || single_touch_flag){
+		//console.log("myUp: " + drag_flag + ", " + single_touch_flag);
+		if(drag_flag || rotate_flag || single_touch_flag){
 
-			if (	(currentX >= binX ) &&
-					(currentX <= binX + binSize) &&
-					(currentY >= binY) &&
-					(currentY <= binY + binSize)  )
-			{
-				$.ajax({
-					url: "ajax-delete.php",
-					cache: false,
-					data: {id:objects[imageId].id},
-					dataType: "script"
-				});
+			if ( (currentX >= binX ) && (currentX <= binX + binSize) && (currentY >= binY) && (currentY <= binY + binSize)  && (drag_flag ||single_touch_flag) ) {
+				$.ajax({url: "ajax-delete.php", cache: false, data: {id:objects[imageId].id}, dataType: "script"});
 				objects.splice(imageId, 1);
 			}
-			else
-			{
+			else {
 				$.ajax({
 					type: "GET",
 					url: "ajax-update.php",
-					data: {
-						id: objects[imageId].id,
-						x: objects[imageId].x,
-						y: objects[imageId].y,
-						z: objects[imageId].z,
-						size: objects[imageId].size,
-						rotation: objects[imageId].rotation
-					},
+					data: { id: objects[imageId].id, x: objects[imageId].x, y: objects[imageId].y, z: objects[imageId].z, size: objects[imageId].size, rotation: objects[imageId].rotation },
 					cache: false,
-					success: function(html){
-						sequence = html;
-					}
+					success: function(html){ sequence = html; }
 				});
 			}
-
 		}
 	}
-	if (touches[2].active == 0 && touches[3].active == 0)
-	{
-		console.log("Both Touches off");
+	if (touches[2].active == 0 && touches[3].active == 0) {
 		touch_flag = false;
 		touch = false;
 		single_touch_flag = false;
-		clickBlockTimeout = setTimeout( function() { 
-			clickBlock = false; 
-			console.log("clickBlock released"); },1000);
+		clickBlockTimeout = setTimeout( function() { clickBlock = false; });
 	}
 	if (touches[2].active != touches[3].active) single_touch_flag = true;
 	drag_flag = false;

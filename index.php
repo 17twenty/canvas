@@ -47,7 +47,7 @@ body {
 	</div>
 	<div id="backgroundPopup"></div>
 
-	<input id="fileupload" type="file" name="files[]" multiple>
+	<input id="fileupload" type="file" name="files[]" multiple> 
 	<script
 		src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
 	<script
