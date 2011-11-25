@@ -21,7 +21,8 @@ Alternatively, this file may be used in accordance with the terms and
 conditions contained in a signed written agreement between you and 
 Cambridge Design Research LLP.
 -->
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
 <title>Canvas by Cambridge Design Partnership</title>
 <style type="text/css">
@@ -33,7 +34,7 @@ body {
 <link rel="stylesheet" href="general.css" type="text/css" media="screen" />
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script src="jquery-latest.js"></script>
-
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 </head>
 <body onresize="resize();">
 	<canvas id="myCanvas" width="500" height="500" style="border: 0px">
