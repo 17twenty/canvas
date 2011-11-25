@@ -13,4 +13,4 @@ PuttyPrivateKey.ppk
 *.db
 temp.js
 objects/
-php/files/
+src/backend-php/public_html/php/files/

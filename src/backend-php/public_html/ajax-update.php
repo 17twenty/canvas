@@ -20,7 +20,7 @@
 * conditions contained in a signed written agreement between you and
 * Cambridge Design Research LLP.
 */
-	include "security.php";
+	include "../includes/config.php";
 
 	$id = $_GET["id"];
 	$x = $_GET["x"];
