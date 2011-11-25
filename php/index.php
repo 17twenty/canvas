@@ -181,6 +181,7 @@ class UploadHandler
         // Add missing file extension for known image types:
         if (strpos($file_name, '.') === false &&
             preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
+            //preg_match('/(gif|jpe?g|png|webm|ogv)/', $type, $matches)) {
             $file_name .= '.'.$matches[1];
         }
         return $file_name;

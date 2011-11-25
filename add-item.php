@@ -26,6 +26,20 @@
 
 <HTML>
 <BODY>
-<h1>Add new item</h1>
+	<h1>Add new item</h1>
+	<table border=0 cellspacing=5>
+		<tr>
+			<td><a href='upload_form.php'><img src='images/picture.png' /></a></td>
+			<td><img src='images/YouTube.png' /></td>
+			<td><img src='images/news.png' /></td>
+		</tr>
+		<tr>
+			<td><div align='center'><a href='upload_form.php'>Upload images/videos</a></div></td>
+			<td><div align='center'>Link to YouTube</div></td>
+			<td><div align='center'>BBC News</div></td>
+
+		</tr>
+	</table>
+
 </BODY>
 </HTML>

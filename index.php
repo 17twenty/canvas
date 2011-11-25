@@ -41,7 +41,7 @@ body {
         </canvas>
 	<div id="popupContact">
 		<a id="popupContactClose">x</a>
-		<iframe src="add-item.php" width="100%" height="300"> You browser
+		<iframe id="iframe" src="add-item.php" width="100%" height="300"> You browser
 			doesn't support iframes </iframe>
 	</div>
 	<div id="backgroundPopup"></div>

@@ -28,6 +28,9 @@ UPDATE = 0;
 REFRESH = 1;
 DELETE = 2;
 
+hotspot_size = 45;
+minimum_object_size = 0.08;  //% of screen width
+
 // GLOBALS
 var drag_flag = false; 
 var rotate_flag = false; 
@@ -38,6 +41,7 @@ var touch_flag = false;
 var single_touch_flag = false;
 var canvas;
 var popupContact;
+var iframe;
 var ctx;
 var v;
 var x = 0.5;
@@ -82,28 +86,27 @@ touches[3] = {
 var currentX;
 var currentY;
 
-var hotspot_size = 45;
+
 var removeIcons;
 
 var bgImage = new Image;
-bgImage.src = "gfx/bg.jpg";
+bgImage.src = "images/bg.jpg";
 bgImage.onload = function(){bgImage.loaded = true;console.log("Background Loaded");render();};
 var rotateImage = new Image;
-rotateImage.src = "gfx/ball.png";
+rotateImage.src = "images/ball.png";
 var binImageEmpty = new Image;
-binImageEmpty.src = "gfx/Recylebin_empty.png";
+binImageEmpty.src = "images/Recylebin_empty.png";
 var binImageFull = new Image;
-binImageFull.src = "gfx/Recylebin_full.png";
+binImageFull.src = "images/Recylebin_full.png";
 var target = new Image;
-target.src = "gfx/target.png";
+target.src = "images/target.png";
 var add = new Image;
-add.src = "gfx/add.png";
+add.src = "images/add.png";
 
 function init()
 {
 	google.load("webfont", "1");
 	google.setOnLoadCallback(function() {
-		console.log("Start Loading fonts");
 		WebFont.load({
 			google: {
 				families: [ 'Cabin Sketch' ]
@@ -117,6 +120,7 @@ function init()
 	});
 	canvas = document.getElementById("myCanvas");
 	popupContact = document.getElementById("popupContact");
+	iframe = document.getElementById("iframe");
 	ctx=canvas.getContext("2d");
 	resize();
 
@@ -145,6 +149,7 @@ function init()
 	        dataType: 'json',
 	        url: 'php/index.php',
 	        done: function (e, data) {
+	        	var name = prompt("Please give this object a name");
 	            $.each(data.result, function (index, file) {
 	            	$.ajax({
 						type: "GET",
@@ -154,7 +159,7 @@ function init()
 							y: (dropY / window.innerHeight),
 							size: 0.2,
 							rotation: ((Math.random()*60)-30),
-							name: "Upload",
+							name: name,
 							type: IMAGE,
 							link: ".."+file.large_url
 						},
@@ -165,9 +170,10 @@ function init()
 	    });
 	});
 	
-	window.addEventListener("MozTouchDown", myDown, false);
-	window.addEventListener("MozTouchUp"  , myUp  , false);
-	window.addEventListener("mousedown"  , function(e) { setTimeout(function() { myDown(e); } ,20); } , false);
+	window.addEventListener("MozTouchDown", myDown, true);
+	window.addEventListener("MozTouchUp"  , myUp  , true);
+	window.addEventListener("MozTouchMove", myMove, true);
+	window.addEventListener("mousedown"  , function(e) { setTimeout(function() { myDown(e); } ,100); } , false);
 }
 
 function CanvasImage() {
@@ -247,6 +253,7 @@ function resize()
 	
 	popupContact.style.width = Math.floor(window.innerWidth * 0.9) + "px";
 	popupContact.style.height = Math.floor(window.innerHeight * 0.8) + "px";
+	iframe.style.height = Math.floor(window.innerHeight * 0.8) + "px";
 	
 	render();
 }
@@ -326,20 +333,22 @@ function clean_angle_rad(angle) {
 function myDown(e){
 	if(popupStatus==0)
 		{
-		if (e.streamId == null)
+		if (e.type != "MozTouchDown")  // click event
 			{
 			if (touches[2].active || touches[3].active || touch || clickBlock)
 				return
-			console.log("Click");
+			//console.log("Click");
 			touch = false;
 			canvas.onmouseup = myUp;
+			canvas.onmousemove = myMove;
 			}
-		else
+		else	// touch event
 			{
 			touch = true;
 			console.log("Touch: " + e.streamId);
-		    touches[e.streamId].active = false; //reset
+		    //touches[e.streamId].active = false; //reset
 		    clickBlock = true;
+			canvas.onmousemove = null;
 			}
 
 		console.log("myDown");
@@ -443,7 +452,7 @@ function myDown(e){
 				    	touches[e.streamId].x = e.pageX;
 				    	touches[e.streamId].y = e.pageY;	
 						
-						window.addEventListener("MozTouchMove", myMove, false);
+						//window.addEventListener("MozTouchMove", myMove, true);
 						canvas.onmousemove = null;
 						touch_flag = true;
 					}
@@ -477,13 +486,23 @@ function findObjectId (id){
 }
 
 function myMove(e){
+
+	
     if (e.type != "MozTouchMove") moved_flag = true;
     else
    // if (touch && e.streamId != null)
     {
+
+		//console.log("move " + e.streamId);
     	//Work around for hyper sensitive touch events
-    	if ( (e.pageX < touches[e.streamId].oldx - 3) || (e.pageX > touches[e.streamId].oldx + 3) || (e.pageY < touches[e.streamId].oldy - 3) || (e.pageY > touches[e.streamId].oldy + 3) ) moved_flag = true;
-    		
+    	if ( (e.pageX < touches[e.streamId].oldx - 1) || (e.pageX > touches[e.streamId].oldx + 1) || (e.pageY < touches[e.streamId].oldy - 1) || (e.pageY > touches[e.streamId].oldy + 1) ) moved_flag = true;
+    	else
+    		return;	
+
+    	//console.log("move " + e.pageX + " " + e.pageY + " " + touches[e.streamId].oldx + " " + touches[e.streamId].oldy);	
+
+		touches[e.streamId].oldx = e.pageX;
+		touches[e.streamId].oldy = e.pageY;
     		
     	if (touches[e.streamId].active == false) return;
     	objectId = findObjectId(touches[e.streamId].object);
@@ -498,10 +517,6 @@ function myMove(e){
     		{
     			multitouch = true;
 
-    			touches[2].oldx = touches[2].x;
-    			touches[2].oldy = touches[2].y;
-    			touches[3].oldx = touches[3].x;
-    			touches[3].oldy = touches[3].y;
 
     			temp_x = (objects[objectId].x * window.innerWidth) - (touches[2].oldx + touches[3].oldx) / 2;
     			temp_y = (objects[objectId].y * window.innerHeight) - (touches[2].oldy + touches[3].oldy) / 2;
@@ -509,13 +524,14 @@ function myMove(e){
     			resise_ratio = objects[objectId].size / (Math.sqrt (Math.pow((touches[2].y - (objects[objectId].y * window.innerHeight)),2) + Math.pow((touches[2].x - (objects[objectId].x * window.innerWidth)),2) ));
     			clean_angle(rotate_offset = Math.atan2((touches[2].y - touches[3].y) , (touches[2].x - touches[3].x)) * 180 / Math.PI - objects[objectId].rotation);
     		}
-    		if (e.streamId == 2)
+    		//if (e.streamId == 2)
     		{
     			objects[objectId].rotation = clean_angle(Math.atan2((touches[2].y - touches[3].y) , (touches[2].x - touches[3].x)) * 180 / Math.PI - rotate_offset);
     			objects[objectId].size = (Math.sqrt(Math.pow((touches[2].y - (objects[objectId].y * window.innerHeight)),2) + Math.pow((touches[2].x - (objects[objectId].x * window.innerWidth)),2)) * resise_ratio );
+    			if (objects[imageId].size < 0.05) objects[imageId].size = minimum_object_size;
     			objects[objectId].x = (((touches[2].x + touches[3].x) / 2) + temp_x) / window.innerWidth;
     			objects[objectId].y = (((touches[2].y + touches[3].y) / 2) + temp_y) / window.innerHeight;
-            	render(); //Increase Framerate while moving an object
+            	//render(); //Increase Framerate while moving an object
     		}
     	}
     	else
@@ -530,7 +546,7 @@ function myMove(e){
     		multitouch = false;
     		objects[objectId].x = (touches[e.streamId].x + touches[e.streamId].tempx) / window.innerWidth;
     		objects[objectId].y = (touches[e.streamId].y + touches[e.streamId].tempy) / window.innerHeight;
-        	render(); //Increase Framerate while moving an object
+        	//render(); //Increase Framerate while moving an object
     	}
     }
     currentX = e.pageX;
@@ -538,25 +554,23 @@ function myMove(e){
 	if (drag_flag)	{
 		objects[imageId].x = (e.pageX + temp_x) / window.innerWidth;
 		objects[imageId].y = (e.pageY + temp_y) / window.innerHeight;
-		render(); //Increase Framerate while moving an object
+		//render(); //Increase Framerate while moving an object
 	}
 	if (rotate_flag)	{
 		objects[imageId].rotation = clean_angle(Math.atan2((e.pageY - (objects[imageId].y * window.innerHeight)) , (e.pageX - (objects[imageId].x * window.innerWidth))) * 180 / Math.PI - rotate_offset);
 		objects[imageId].size = (Math.sqrt(Math.pow((e.pageY - (objects[imageId].y * window.innerHeight)),2) + Math.pow((e.pageX - (objects[imageId].x * window.innerWidth)),2)) * resise_ratio );
-		if (objects[imageId].size < 0.05) objects[imageId].size = 0.05;
-		render(); //Increase Framerate while moving an object
+		if (objects[imageId].size < minimum_object_size) objects[imageId].size = 0.05;
+		//render(); //Increase Framerate while moving an object
 	}
+	//render(); //Increase Framerate while moving an object
 }
 
 function myUp(e){
-	console.log("myUp");
-	canvas.onmouseup = null;
-	if (e.streamId != null) //Touched
+	//console.log("myUp");
+	//canvas.onmouseup = null;
+	if (e.type == "MozTouchUp") //Touched
 	{
 		touches[e.streamId].active = false;
-
-		clickBlockTimeout = setTimeout("clickBlock = true;",1000);
-
     	objectId = findObjectId(touches[e.streamId].object);
 		imageId = objectId;
 		console.log("TouchUp: " + e.streamId);
@@ -564,8 +578,8 @@ function myUp(e){
 	}
 	//else
 	{
-	    currentX = e.pageX;
-	    currentY = e.pageY;
+		currentX = e.pageX;
+		currentY = e.pageY;
 		canvas.onmousemove = null;
 		removeIcons=setTimeout("displayIcons = false;",3000);
 		if (moved_flag == false && (drag_flag || touch_flag)) {
@@ -574,6 +588,7 @@ function myUp(e){
 				if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else objects[imageId].image.pause();
 			}
 		}
+		console.log("myUp: " + drag_flag + ", " + single_touch_flag);
 		if(drag_flag || single_touch_flag){
 
 			if (	(currentX >= binX ) &&
@@ -613,15 +628,18 @@ function myUp(e){
 	}
 	if (touches[2].active == 0 && touches[3].active == 0)
 	{
+		console.log("Both Touches off");
 		touch_flag = false;
 		touch = false;
-		removeEventListener("MozTouchMove", myMove, false);
+		single_touch_flag = false;
+		clickBlockTimeout = setTimeout( function() { 
+			clickBlock = false; 
+			console.log("clickBlock released"); },1000);
 	}
-	moved_flag = false;
+	if (touches[2].active != touches[3].active) single_touch_flag = true;
 	drag_flag = false;
 	rotate_flag = false;
 	resize_flag = false;
-	single_touch_flag = false;
     render();
     	
 }
