@@ -17,19 +17,9 @@ supercede the terms of the LGPL license.
 Documentation is licensed under the [Creative Commons Attribution-Share Alike 
 license](http://creativecommons.org/licenses/by-sa/3.0/).
 
-Installation
-------------
+Guides
+------
 
-1. Install [WAMP](http://www.wampserver.com/en/download.php)
-2. Start apache
-3. Set up the MySQL database and add a canvas user
-4. Open index.php in a web browser. The code should run in Chrome 15+ or Firefox 8+. 
-   Internet Explorer yet render the canvas elements but will be addressed soon. 
-   At the time of writing, only Firefox Beta supports multitouch.
-
-
-Development
------------
-
-Documentation is in [markdown](http://daringfireball.net/projects/markdown/basics) 
-format.
+* [Installation guide](doc/installation.md).
+* [Use guide](doc/use.md).
+* [Development guide](doc/development.md).
