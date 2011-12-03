@@ -1,13 +1,4 @@
-<HTML>
-<HEAD>
 
-<script src="jquery-latest.js"></script>
-</HEAD>
-<BODY>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-<script src="jquery.iframe-transport.js"></script>
-<script src="jquery.fileupload.js"></script>
 <script type="text/javascript" >
 $(function () {
 	    $('#manfileupload').fileupload({
@@ -43,5 +34,3 @@ $(function () {
 	File: <input id="manfileupload" type="file" name="files[]" multiple"> <br />
 	<input type="submit" value="Submit" />
 	</form>
-</BODY>
-</HTML>

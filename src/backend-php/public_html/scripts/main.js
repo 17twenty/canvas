@@ -254,7 +254,7 @@ function resize()
 	
 	popupContact.style.width = Math.floor(window.innerWidth * 0.7) + "px";
 	popupContact.style.height = Math.floor(window.innerHeight * 0.8) + "px";
-	iframe.style.height = Math.floor(window.innerHeight * 0.8) + "px";
+	//iframe.style.height = Math.floor(window.innerHeight * 0.8) + "px";
 	
 	render();
 }
