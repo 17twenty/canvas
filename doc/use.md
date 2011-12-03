@@ -13,7 +13,7 @@ Either:
 Remove items
 ------------
 
-"Click" and drag the item to the bottom left onto the trash can.
+"Click" and drag the item to the bottom right onto the trash can.
 
 Rearrange items
 ---------------
