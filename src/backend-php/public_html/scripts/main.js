@@ -151,26 +151,26 @@ function init()
 	        dataType: 'json',
 	        url: 'php/index.php',
 	        done: function (e, data) {
-	        	var name = prompt("Please give this object a name");
-	            $.each(data.result, function (index, file) {
-					if (file.error == null)
-					{
-						$.ajax({
-							type: "GET",
-							url: "ajax-insert.php",
-							data: {
-								x: (dropX / window.innerWidth ),
-								y: (dropY / window.innerHeight),
-								size: 0.2,
-								rotation: ((Math.random()*60)-30),
-								name: name,
-								type: IMAGE,
-								link: ".."+file.large_url
-							},
-							  dataType: "script"
-						});
-					}
-	            });
+				apprise('Item caption?',{'input':true}, function(name) {
+					$.each(data.result, function (index, file) {
+						if (file.error == null)	{
+							$.ajax({
+								type: "GET",
+								url: "ajax-insert.php",
+								data: {
+									x: (dropX / window.innerWidth ),
+									y: (dropY / window.innerHeight),
+									size: 0.2,
+									rotation: ((Math.random()*60)-30),
+									name: name,
+									type: IMAGE,
+									link: ".."+file.large_url
+								},
+								  dataType: "script"
+							});
+						}
+					});
+				});
 	        }
 	    });
 	});

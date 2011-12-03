@@ -34,19 +34,25 @@ function UploadImage()
 <HTML>
 <BODY>
 	<h1>Add new item</h1>
+	<div align="center">
 	<table border=0 cellspacing=5>
 		<tr>
 			<td><a href='#' onClick="UploadImage();"><img src='images/picture.png' /></a></td>
-			<td><img src='images/YouTube.png' /></td>
-			<td><img src='images/news.png' /></td>
+			<td>&nbsp;</td>
+			<td><img src='images/YouTube_dim.png' /></td>
+			<td>&nbsp;</td>
+			<td><img src='images/news_dim.png' /></td>
 		</tr>
 		<tr>
-			<td><div align='center'><a href='#' onClick="UploadImage();">Upload images/videos</a></div></td>
-			<td><div align='center'>Link to YouTube</div></td>
-			<td><div align='center'>BBC News</div></td>
+			<td><div align='center'><a href='#' onClick="UploadImage();">Upload object</a></div></td>
+			<td></td>
+			<td><div align='center'>Link to YouTube</br>TO DO</div></td>
+			<td></td>
+			<td><div align='center'>BBC News</br>TO DO</div></td>
 
 		</tr>
 	</table>
+	</div>
 
 </BODY>
 </HTML>
