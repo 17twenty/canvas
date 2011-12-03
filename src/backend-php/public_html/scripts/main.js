@@ -57,6 +57,8 @@ var imageId = 0;
 var maxz = 0;
 var displayIcons = false;
 var fontsLoaded = false;
+var dropX = 0.5;
+var	dropY = 0.5;
 
 var clickBlock = false;
 var touch = false;
@@ -151,20 +153,23 @@ function init()
 	        done: function (e, data) {
 	        	var name = prompt("Please give this object a name");
 	            $.each(data.result, function (index, file) {
-	            	$.ajax({
-						type: "GET",
-						url: "ajax-insert.php",
-						data: {
-							x:  (dropX / window.innerWidth),
-							y: (dropY / window.innerHeight),
-							size: 0.2,
-							rotation: ((Math.random()*60)-30),
-							name: name,
-							type: IMAGE,
-							link: ".."+file.large_url
-						},
-						  dataType: "script"
-					});
+					if (file.error == null)
+					{
+						$.ajax({
+							type: "GET",
+							url: "ajax-insert.php",
+							data: {
+								x: (dropX / window.innerWidth ),
+								y: (dropY / window.innerHeight),
+								size: 0.2,
+								rotation: ((Math.random()*60)-30),
+								name: name,
+								type: IMAGE,
+								link: ".."+file.large_url
+							},
+							  dataType: "script"
+						});
+					}
 	            });
 	        }
 	    });
@@ -255,6 +260,9 @@ function resize()
 	popupContact.style.width = Math.floor(window.innerWidth * 0.7) + "px";
 	popupContact.style.height = Math.floor(window.innerHeight * 0.8) + "px";
 	//iframe.style.height = Math.floor(window.innerHeight * 0.8) + "px";
+	
+	dropX  = 0.5 * window.innerWidth;
+	dropY  = 0.5 * window.innerHeight;
 	
 	render();
 }
