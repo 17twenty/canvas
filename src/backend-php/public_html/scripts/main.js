@@ -107,19 +107,19 @@ add.src = "images/add.png";
 
 function init()
 {
-	google.load("webfont", "1");
-	google.setOnLoadCallback(function() {
-		WebFont.load({
-			google: {
-				families: [ 'Cabin Sketch' ]
-			},
-			active: function(){
-				console.log("Font Loaded");
-				fontsLoaded = true;
-				render();
-			}
-		});
-	});
+//	google.load("webfont", "1");
+//	google.setOnLoadCallback(function() {
+//		WebFont.load({
+//			google: {
+//				families: [ 'Cabin Sketch' ]
+//			},
+//			active: function(){
+//				console.log("Font Loaded");
+//				fontsLoaded = true;
+//				render();
+//			}
+//		});
+//	});
 	canvas = document.getElementById("myCanvas");
 	popupContact = document.getElementById("popupContact");
 	iframe = document.getElementById("iframe");
@@ -298,7 +298,7 @@ function drawImage(image)
     ctx.shadowBlur    = 0;
     ctx.shadowColor   = 'rgba(0, 0, 0, 0)';    
 
-    if(fontsLoaded)
+    //if(fontsLoaded)
     {
     	ctx.fillStyle = "#000000"; 
     	ctx.font = "20px 'Cabin Sketch', cursive";
@@ -342,13 +342,12 @@ function clean_angle_rad(angle) {
 function myDown(e){
 	if(popupStatus==0)
 		{
-		console.log("myDown");
 		if (e.type != "MozTouchDown")  // click event
 			{
 			if ((e.mozInputSource > 1)) // check if a 'click' is really a 'touch'
 					//touches[2].active || touches[3].active || touch || clickBlock || (e.mozInputSource > 1))
 				return
-			//console.log("Click");
+			console.log("Click");
 			touch = false;
 			canvas.onmousemove = myMove;
 			}
@@ -465,6 +464,7 @@ function myDown(e){
 						//window.addEventListener("MozTouchMove", myMove, true);
 						canvas.onmousemove = null;
 						touch_flag = true;
+						moved_flag = false;
 						
 					}
 					else
@@ -506,7 +506,7 @@ function myMove(e){
     	if ( (e.pageX < touches[e.streamId].oldx - 2) || (e.pageX > touches[e.streamId].oldx + 2) || (e.pageY < touches[e.streamId].oldy - 2) || (e.pageY > touches[e.streamId].oldy + 2) ) moved_flag = true;
     	else
     		return;	
-
+		//console.log("Moved");
 		touches[e.streamId].oldx = e.pageX;
 		touches[e.streamId].oldy = e.pageY;
     		
@@ -567,7 +567,7 @@ function myUp(e){
 		touches[e.streamId].active = false;
     	objectId = findObjectId(touches[e.streamId].object);
 		imageId = objectId;
-		console.log("TouchUp: " + e.streamId);
+		console.log("TouchUp: " + e.streamId + "  - Moved? " + moved_flag);
 		
 	}
 	//else
@@ -670,7 +670,7 @@ function render()
     		
     }
     if(touches[2].active) ctx.drawImage(target, touches[2].x - 20 , touches[2].y - 20 , 40, 40);	// Target 1
-    if(touches[3].active) ctx.drawImage(target, touches[3].x - 20 , touches[3].y - 20 , 40, 40);	// Target 2
+    if(touches[3].active) ctx.drawImage(target, touches[3].x - 20 , touches[3].y - 20 , 20, 20);	// Target 2
     ctx.drawImage(add, addX, addY, addSize, addSize);	// Add image
 }
 

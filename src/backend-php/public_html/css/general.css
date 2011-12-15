@@ -10,6 +10,10 @@ margin:0pt;
 padding:0pt;
 vertical-align:baseline;
 }
+@font-face {
+	font-family: "Cabin Sketch";
+	src: url('CabinSketch-Regular.ttf');
+}
 body{
 background:#fff none repeat scroll 0%;
 line-height:1;

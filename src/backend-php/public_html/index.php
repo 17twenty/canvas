@@ -31,13 +31,11 @@ body {
 	overflow: hidden;
 }
 </style>
-<link rel="stylesheet" href="themes/general.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="css/general.css" type="text/css" media="screen" />
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script src="scripts/jquery-latest.js"></script>
 
 <script  type="text/javascript" src="scripts/apprise-1.5.full.js"></script>
-<link rel="stylesheet" href="themes/apprise.css" type="text/css" />
-
 <link rel="stylesheet" href="css/apprise.css" type="text/css" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 </head>
