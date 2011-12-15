@@ -520,19 +520,23 @@ function myMove(e){
     		if (multitouch == false)  {
     			multitouch = true;
     			
-    			temp_x = (objects[objectId].x * window.innerWidth) - (touches[2].oldx + touches[3].oldx) / 2;
-    			temp_y = (objects[objectId].y * window.innerHeight) - (touches[2].oldy + touches[3].oldy) / 2;
-
+    			temp_x = (objects[objectId].x * window.innerWidth) - ( (touches[2].oldx + touches[3].oldx) / 2);
+    			temp_y = (objects[objectId].y * window.innerHeight) - ( (touches[2].oldy + touches[3].oldy) / 2);
+    			temp_size = objects[objectId].size;
     			//resise_ratio = objects[objectId].size / (Math.sqrt (Math.pow((touches[2].y - (objects[objectId].y * window.innerHeight)),2) + Math.pow((touches[2].x - (objects[objectId].x * window.innerWidth)),2) ));
     			resise_ratio = objects[objectId].size / (Math.sqrt (Math.pow((touches[2].y - touches[3].y),2) + Math.pow((touches[2].x - touches[3].x),2) ));
     			clean_angle(rotate_offset = Math.atan2((touches[2].y - touches[3].y) , (touches[2].x - touches[3].x)) * 180 / Math.PI - objects[objectId].rotation);
     		}
+    		rot_correction_x = 0;
+    		rot_correction_y = 0;
+    		
 			objects[objectId].rotation = clean_angle(Math.atan2((touches[2].y - touches[3].y) , (touches[2].x - touches[3].x)) * 180 / Math.PI - rotate_offset);
 			//objects[objectId].size = (Math.sqrt(Math.pow((touches[2].y - (objects[objectId].y * window.innerHeight)),2) + Math.pow((touches[2].x - (objects[objectId].x * window.innerWidth)),2)) * resise_ratio );
 			objects[objectId].size = (Math.sqrt (Math.pow((touches[2].y - touches[3].y),2) + Math.pow((touches[2].x - touches[3].x),2) ) * resise_ratio );
 			if (objects[imageId].size < minimum_object_size) objects[imageId].size = minimum_object_size;
-			objects[objectId].x = (((touches[2].x + touches[3].x) / 2) + temp_x) / window.innerWidth;
-			objects[objectId].y = (((touches[2].y + touches[3].y) / 2) + temp_y) / window.innerHeight;
+			objects[objectId].x = (((touches[2].x + touches[3].x) / 2) + (temp_x * (objects[objectId].size / temp_size)) + rot_correction_x) / window.innerWidth;				// temp_x needs an offset so the image scales from the midpoint of touch, not the image midpoint
+			objects[objectId].y = (((touches[2].y + touches[3].y) / 2) + (temp_y * (objects[objectId].size / temp_size)) + rot_correction_y) / window.innerHeight;
+
     	}
     	else
     	{
@@ -568,6 +572,7 @@ function myUp(e){
     	objectId = findObjectId(touches[e.streamId].object);
 		imageId = objectId;
 		console.log("TouchUp: " + e.streamId + "  - Moved? " + moved_flag);
+		multitouch = false;
 		
 	}
 	//else
