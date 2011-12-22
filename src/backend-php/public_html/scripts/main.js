@@ -155,7 +155,8 @@ function init()
 					$.each(data.result, function (index, file) {
 						if (file.error == null)	{
 							var type = IMAGE;
-							if (file.type == "video/webm") type = VIDEO;
+							if (file.type == "video/webm" || file.type == "video/mp4") 
+								type = VIDEO;
 							$.ajax({
 								type: "GET",
 								url: "ajax-insert.php",
@@ -400,7 +401,7 @@ function myDown(e){
 				var BL_TL = clean_angle(objects[i].rotation + 270);
 				
 				// Rotate hotspot
-				if (    objects[i].loaded && touch == false &&
+				if (    objects[i].loaded && //touch == false &&
 						(  e.pageX < objects[i].x * window.innerWidth + Math.cos(angle_to_TR)  * mag_to_corner + hotspot_size/2 
 		                        && e.pageX > objects[i].x * window.innerWidth + Math.cos(angle_to_TR)  * mag_to_corner - hotspot_size/2
 		                        && e.pageY < objects[i].y * window.innerHeight + Math.sin(angle_to_TR) * mag_to_corner + hotspot_size/2 
@@ -466,7 +467,7 @@ function myDown(e){
 						//window.addEventListener("MozTouchMove", myMove, true);
 						canvas.onmousemove = null;
 						touch_flag = true;
-						moved_flag = false;
+						imageId = i;
 						
 					}
 					else
@@ -474,10 +475,11 @@ function myDown(e){
 						drag_flag = true;
 						imageId = i;
 						canvas.onmousemove = myMove;
-						moved_flag = false;
-						displayIcons = true;  
-						if (removeIcons != null) clearTimeout(removeIcons);
 					}
+					moved_flag = false;
+					displayIcons = true;  
+					if (removeIcons != null) clearTimeout(removeIcons);
+					
 					
 					return;
 				}
@@ -572,7 +574,7 @@ function myUp(e){
 	{
 		touches[e.streamId].active = false;
     	objectId = findObjectId(touches[e.streamId].object);
-		imageId = objectId;
+		//imageId = objectId;
 		console.log("TouchUp: " + e.streamId + "  - Moved? " + moved_flag);
 		multitouch = false;
 		
@@ -582,7 +584,8 @@ function myUp(e){
 		currentX = e.pageX;
 		currentY = e.pageY;
 		canvas.onmousemove = null;
-		removeIcons=setTimeout("displayIcons = false;",3000);
+
+		if (removeIcons == null) removeIcons=setTimeout("displayIcons = false;",3000);
 		if (moved_flag == false && (drag_flag || touch_flag)) {
 			if (objects[imageId].type == VIDEO) {
 				console.log("Play Video");
