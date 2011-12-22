@@ -135,7 +135,7 @@ function init()
 			  data: {sequence: sequence},
 			  dataType: "script"
 			});
-	},5000);
+	},60000);
 
 	// Set Framerate
 	renderTimeout = setInterval(autoRender,50); //50
@@ -154,6 +154,8 @@ function init()
 				apprise('Item caption?',{'input':true}, function(name) {
 					$.each(data.result, function (index, file) {
 						if (file.error == null)	{
+							var type = IMAGE;
+							if (file.type == "video/webm") type = VIDEO;
 							$.ajax({
 								type: "GET",
 								url: "ajax-insert.php",
@@ -163,8 +165,8 @@ function init()
 									size: 0.2,
 									rotation: ((Math.random()*60)-30),
 									name: name,
-									type: IMAGE,
-									link: ".."+file.large_url
+									type: type,
+									link: "objects/"+file.name
 								},
 								  dataType: "script"
 							});

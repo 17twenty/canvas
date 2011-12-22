@@ -27,7 +27,7 @@ $(function () {
 	</script>
 
 	<h1>Upload images/videos</h1>
-	You can upload objects to the canvas provided they are one of the folloeing file types: Images (.jpg, .gif, .png), Videos (.ogv, .webm)
+	You can upload objects to the canvas provided they are one of the following file types: Images (.jpg, .gif, .png), Videos (.ogv, .webm)
 
 	<form>
 	Name: <input type="text" name="name" /><br />

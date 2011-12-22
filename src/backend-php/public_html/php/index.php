@@ -10,7 +10,15 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
+ob_start();
 error_reporting(E_ALL | E_STRICT);
+require_once('FirePHPCore/FirePHP.class.php');
+
+$firephp = FirePHP::getInstance(true);
+
+//$var = array('i'=>10, 'j'=>20);
+
+//$firephp->log($var, 'Iterators');
 
 class UploadHandler
 {
@@ -19,7 +27,7 @@ class UploadHandler
     function __construct($options=null) {
         $this->options = array(
             'script_url' => $this->getFullUrl().'/'.basename(__FILE__),
-            'upload_dir' => dirname(__FILE__).'/files/',
+            'upload_dir' => dirname(dirname(__FILE__)).'/objects/',
             'upload_url' => $this->getFullUrl().'/files/',
             'param_name' => 'files',
             // The php.ini settings upload_max_filesize and post_max_size
@@ -47,6 +55,9 @@ class UploadHandler
 //                 )
             )
         );
+        
+
+         
         if ($options) {
             $this->options = array_replace_recursive($this->options, $options);
         }
@@ -296,6 +307,13 @@ class UploadHandler
             header('Content-type: text/plain');
         }
         echo $json;
+        
+        $firephp = FirePHP::getInstance(true);
+        $firephp->log($json, "json");
+        $firephp->log($redirect, "redirect");
+        $firephp->log($upload, "upload");
+        $firephp->log($info, "info");
+        
     }
     
     public function delete() {
