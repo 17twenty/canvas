@@ -29,10 +29,25 @@ function UploadImage()
 	document.getElementById('fileupload').click();
 	disablePopup();
 }
+
+function validateForm(form)
+{
+	console.log(form.URL.value);
+}
+
+function YouTube()
+{
+	$.ajax({
+	  type: "GET",
+	  url: "php/YouTube.php",
+	  // data: {sequence: sequence},
+	  datatype: "html",
+	  success: function(html){ document.getElementById('popupFrame').innerHTML = html; }
+	});
+}
 </script>
 
-<HTML>
-<BODY>
+<div id="popupFrame">
 	<h1>Add new item</h1>
 	<div align="center">
 	<table border=0 cellspacing=5>
@@ -46,13 +61,11 @@ function UploadImage()
 		<tr>
 			<td><div align='center'><a href='#' onClick="UploadImage();">Upload object</a></div></td>
 			<td></td>
-			<td><div align='center'>Link to YouTube</br>TO DO</div></td>
+			<td><div align='center'><a href='#' onClick="YouTube();">Link to YouTube</br>TO DO</a></div></td>
 			<td></td>
 			<td><div align='center'>BBC News</br>TO DO</div></td>
 
 		</tr>
 	</table>
 	</div>
-
-</BODY>
-</HTML>
+</div>
