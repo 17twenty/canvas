@@ -33,6 +33,17 @@ function UploadImage()
 function validateForm(form)
 {
 	console.log(form.URL.value);
+
+	results = form.URL.value.match("[\\?&]v=([^&#]*)");
+	vid = ( results === null ) ? url : results[1];
+	
+	console.log(vid);
+	
+	var img = document.createElement("IMG");
+	img.src = "http://img.youtube.com/vi/"+ vid +"/2.jpg";
+
+	document.getElementById('YouTubeList').appendChild(img);
+	
 }
 
 function YouTube()
@@ -40,7 +51,6 @@ function YouTube()
 	$.ajax({
 	  type: "GET",
 	  url: "php/YouTube.php",
-	  // data: {sequence: sequence},
 	  datatype: "html",
 	  success: function(html){ document.getElementById('popupFrame').innerHTML = html; }
 	});
@@ -54,14 +64,14 @@ function YouTube()
 		<tr>
 			<td><a href='#' onClick="UploadImage();"><img src='images/picture.png' /></a></td>
 			<td>&nbsp;</td>
-			<td><img src='images/YouTube_dim.png' /></td>
+			<td><a href='#' onClick="YouTube();"><img src='images/YouTube.png' /></a></td>
 			<td>&nbsp;</td>
 			<td><img src='images/news_dim.png' /></td>
 		</tr>
 		<tr>
 			<td><div align='center'><a href='#' onClick="UploadImage();">Upload object</a></div></td>
 			<td></td>
-			<td><div align='center'><a href='#' onClick="YouTube();">Link to YouTube</br>TO DO</a></div></td>
+			<td><div align='center'><a href='#' onClick="YouTube();">Link to YouTube</a></div></td>
 			<td></td>
 			<td><div align='center'>BBC News</br>TO DO</div></td>
 

@@ -3,3 +3,4 @@
 <label>YouTube URL: </label><input type='text' name='URL' />
 <input type="button" id="submit" value="Submit" onClick="validateForm(this.form)"/>
 </form>
+<div id="YouTubeList"><?php include "YouTubeList.php"; ?></div>
