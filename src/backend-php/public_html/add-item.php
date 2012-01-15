@@ -33,7 +33,13 @@ function UploadImage()
 function validateForm(form)
 {
 	console.log(form.URL.value);
-
+	$.ajax({
+	  type: "GET",
+	  url: "php/YouTube_Download.php",
+	  data: {url: form.URL.value},
+	  datatype: "json",
+	  //success: function(html){ document.getElementById('popupFrame').innerHTML = html; }
+	});
 	results = form.URL.value.match("[\\?&]v=([^&#]*)");
 	vid = ( results === null ) ? url : results[1];
 	
