@@ -4,9 +4,10 @@ ini_set('max_execution_time', 300); //300 seconds = 5 minutes
 
 $videoUrl = urldecode($_GET["url"]); //"http://www.youtube.com/watch?v=6iK4dy74ibY";
 //$videoUrl = "http://www.youtube.com/watch?v=4q5ZHU8yvLQ";
-//echo $videoUrl;
-//echo("C:\\Python27\\python.exe " . getcwd() . "\\youtube-dl.py ".$videoUrl." -F --write-info-json");
-exec("C:\\Python27\\python.exe " . getcwd() . "\\youtube-dl.py ".$videoUrl." -F --write-info-json", $result);
+
+$path  = dirname(getcwd())."\\scripts\\youtube-dl.py";
+
+exec("C:\\Python27\\python.exe " . $path . " " . $videoUrl." -F --write-info-json", $result);
 
 //print_r($result);
 $imploded = implode("\n", $result);
@@ -19,7 +20,7 @@ rsort($formats);
 if (count($formats) > 0)
 {
 	$format = $formats[0];
-	exec("C:\\Python27\\python.exe " . getcwd() . "\\youtube-dl.py ".$videoUrl." -f ". $format ." -w --write-info-json", $result2);
+	exec("C:\\Python27\\python.exe " . $path . " " . $videoUrl." -f ". $format ." -w --write-info-json", $result2);
 	//print_r($result2);
 	$imploded = implode("\n", $result2);
 	
@@ -34,9 +35,12 @@ if (count($formats) > 0)
 		preg_match("((.*).info.json)", $json_file, $matches);
 	$file = $matches[1];
 	
-	$decoded_json["Filename"] = $file;
+	$decoded_json["filename"] = $file;
 	$json = json_encode($decoded_json);
 	echo $json;
+	if (copy(getcwd()."\\".$file, dirname(getcwd())."\\objects\\".$file)) {
+		unlink(getcwd()."\\".$file);
+	}
 }
 else
 {

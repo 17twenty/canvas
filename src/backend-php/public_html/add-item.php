@@ -38,7 +38,25 @@ function validateForm(form)
 	  url: "php/YouTube_Download.php",
 	  data: {url: form.URL.value},
 	  datatype: "json",
-	  //success: function(html){ document.getElementById('popupFrame').innerHTML = html; }
+	  success: function(response){ 
+		  var youtube = JSON.parse(response);
+		  //document.getElementById('popupFrame').innerHTML = youtube.id; 
+			type = VIDEO;
+			$.ajax({
+				type: "GET",
+				url: "ajax-insert.php",
+				data: {
+					x: 0.5,
+					y: 0.5,
+					size: 0.2,
+					rotation: ((Math.random()*60)-30),
+					name: youtube.title,
+					type: type,
+					link: "objects/"+youtube.filename
+				},
+				  dataType: "script"
+			});
+	  }
 	});
 	results = form.URL.value.match("[\\?&]v=([^&#]*)");
 	vid = ( results === null ) ? url : results[1];
