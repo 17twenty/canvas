@@ -9,7 +9,7 @@ PuttyPrivateKey.ppk
 .settings/
 .project
 
-
+*.info.json
 *.db
 temp.js
 objects/
