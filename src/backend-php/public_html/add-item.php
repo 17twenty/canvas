@@ -32,7 +32,6 @@ function UploadImage()
 
 function validateForm(form)
 {
-	console.log(form.URL.value);
 	$.ajax({
 	  type: "GET",
 	  url: "php/YouTube_Download.php",
@@ -56,6 +55,8 @@ function validateForm(form)
 				},
 				  dataType: "script"
 			});
+			disablePopup();
+			setTimeout("PopupMain()",2000);
 	  }
 	});
 	results = form.URL.value.match("[\\?&]v=([^&#]*)");
@@ -66,7 +67,10 @@ function validateForm(form)
 	var img = document.createElement("IMG");
 	img.src = "http://img.youtube.com/vi/"+ vid +"/2.jpg";
 
-	document.getElementById('YouTubeList').appendChild(img);
+	
+	document.getElementById('YouTubeList').innerHTML = "<img src='"+img.src+"'><b>Downloading ... Please Wait</b>";
+
+	//document.getElementById('YouTubeList').appendChild(img);
 	
 }
 
@@ -75,6 +79,18 @@ function YouTube()
 	$.ajax({
 	  type: "GET",
 	  url: "php/YouTube.php",
+	  datatype: "html",
+	  success: function(html){ document.getElementById('popupFrame').innerHTML = html; }
+	});
+}
+
+function PopupMain()
+{
+
+	console.log("Back");
+	$.ajax({
+	  type: "GET",
+	  url: "add-item.php",
 	  datatype: "html",
 	  success: function(html){ document.getElementById('popupFrame').innerHTML = html; }
 	});

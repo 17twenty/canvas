@@ -260,7 +260,7 @@ function resize()
 	addX = window.innerWidth -  addSize - 10;
 	addY = 10;
 	
-	popupContact.style.width = Math.floor(window.innerWidth * 0.7) + "px";
+	popupContact.style.width = Math.floor(window.innerWidth * 0.5) + "px";
 	popupContact.style.height = Math.floor(window.innerHeight * 0.8) + "px";
 	//iframe.style.height = Math.floor(window.innerHeight * 0.8) + "px";
 	
