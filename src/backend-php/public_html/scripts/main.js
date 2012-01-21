@@ -324,6 +324,9 @@ function drawImage(image)
     	ctx.globalAlpha = 0.2;  
     	ctx.lineJoin = 'round';
     	ctx.stroke(); 
+
+    	ctx.fillStyle = "#FFFFFF"; 
+    	ctx.fillText("Click to Play", 0, 0.2*size*image.aspectRatio, size);
     }
 
     ctx.restore();  // Restore co-ordinate system

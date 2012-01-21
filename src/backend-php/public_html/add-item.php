@@ -40,6 +40,8 @@ function validateForm(form)
 	  success: function(response){ 
 		  var youtube = JSON.parse(response);
 		  //document.getElementById('popupFrame').innerHTML = youtube.id; 
+		  if(youtube.error == null)
+		  {
 			type = VIDEO;
 			$.ajax({
 				type: "GET",
@@ -57,21 +59,17 @@ function validateForm(form)
 			});
 			disablePopup();
 			setTimeout("PopupMain()",2000);
+		  }
+		  else
+		  {
+			 document.getElementById('YouTubeList').innerHTML = "<b>Download Failed - Clip does not contain a WEBM format video";
+		  }
 	  }
 	});
-	results = form.URL.value.match("[\\?&]v=([^&#]*)");
-	vid = ( results === null ) ? url : results[1];
-	
-	console.log(vid);
-	
-	var img = document.createElement("IMG");
-	img.src = "http://img.youtube.com/vi/"+ vid +"/2.jpg";
-
-	
-	document.getElementById('YouTubeList').innerHTML = "<img src='"+img.src+"'><b>Downloading ... Please Wait</b>";
-
-	//document.getElementById('YouTubeList').appendChild(img);
-	
+	$.get('php/YouTube_Info.php?url='+form.URL.value, function(data) {
+		youtube = JSON.parse(data);
+		document.getElementById('YouTubeList').innerHTML = "<img style='float:left' src='"+youtube.thumbnail+"' height='50'><div class='YouTubeContent'><b>" +youtube.title+ "</b><br/>"+youtube.description+"<br/><b>Downloading ... Please Wait</b></div>";
+	});
 }
 
 function YouTube()

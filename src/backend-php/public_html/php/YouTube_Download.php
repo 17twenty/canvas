@@ -1,7 +1,11 @@
 <?php
 
 ini_set('max_execution_time', 300); //300 seconds = 5 minutes
-
+if (array_key_exists("url", $_GET) == false)
+{
+	print("{\"error\" : \"URL not supplied\"}");
+	return 0;
+}
 $videoUrl = urldecode($_GET["url"]); //"http://www.youtube.com/watch?v=6iK4dy74ibY";
 //$videoUrl = "http://www.youtube.com/watch?v=4q5ZHU8yvLQ";
 
