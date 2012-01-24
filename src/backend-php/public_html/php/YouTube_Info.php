@@ -12,7 +12,7 @@ $videoUrl = urldecode($_GET["url"]); //"http://www.youtube.com/watch?v=6iK4dy74i
 
 $path  = dirname(getcwd())."\\scripts\\youtube-dl.py";
 
-exec("C:\\Python27\\python.exe " . $path . " " . $videoUrl." --write-info-json --skip-download", $result);
+exec("C:\\Python27\\python.exe " . $path . " " . escapeshellarg($videoUrl)." --write-info-json --skip-download", $result);
 $imploded = implode("\n", $result);
 preg_match("(JSON to: (.*json))", $imploded, $matches);
 $json_file = $matches[1];

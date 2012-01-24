@@ -32,6 +32,7 @@ function UploadImage()
 
 function validateForm(form)
 {
+	document.getElementById('YouTubeList').innerHTML = "<b>Downloading ... Please Wait</b>";
 	$.ajax({
 	  type: "GET",
 	  url: "php/YouTube_Download.php",
@@ -39,7 +40,6 @@ function validateForm(form)
 	  datatype: "json",
 	  success: function(response){ 
 		  var youtube = JSON.parse(response);
-		  //document.getElementById('popupFrame').innerHTML = youtube.id; 
 		  if(youtube.error == null)
 		  {
 			type = VIDEO;
@@ -68,7 +68,7 @@ function validateForm(form)
 	});
 	$.get('php/YouTube_Info.php?url='+form.URL.value, function(data) {
 		youtube = JSON.parse(data);
-		document.getElementById('YouTubeList').innerHTML = "<img style='float:left' src='"+youtube.thumbnail+"' height='50'><div class='YouTubeContent'><b>" +youtube.title+ "</b><br/>"+youtube.description+"<br/><b>Downloading ... Please Wait</b></div>";
+		document.getElementById('YouTubeList').innerHTML = "<img style='float:left' src='"+youtube.thumbnail+"' height='50'><div style='width:10px; float:left'>&nbsp;</div><div class='YouTubeContent'><b>" +youtube.title+ "</b><br/>"+youtube.description+"<br/><b>Downloading ... Please Wait</b></div>";
 	});
 }
 
@@ -97,21 +97,22 @@ function PopupMain()
 
 <div id="popupFrame">
 	<h1>Add new item</h1>
+	<br/><br/>
 	<div align="center">
 	<table border=0 cellspacing=5>
 		<tr>
 			<td><a href='#' onClick="UploadImage();"><img src='images/picture.png' /></a></td>
-			<td>&nbsp;</td>
+			<td width='100px'></td>
 			<td><a href='#' onClick="YouTube();"><img src='images/YouTube.png' /></a></td>
-			<td>&nbsp;</td>
-			<td><img src='images/news_dim.png' /></td>
+<!-- 			<td>&nbsp;&nbsp;&nbsp;</td> -->
+<!-- 			<td><img src='images/news_dim.png' /></td> -->
 		</tr>
 		<tr>
 			<td><div align='center'><a href='#' onClick="UploadImage();">Upload object</a></div></td>
 			<td></td>
 			<td><div align='center'><a href='#' onClick="YouTube();">Link to YouTube</a></div></td>
-			<td></td>
-			<td><div align='center'>BBC News</br>TO DO</div></td>
+<!-- 			<td></td> -->
+<!-- 			<td><div align='center'>BBC News</br>TO DO</div></td> -->
 
 		</tr>
 	</table>
