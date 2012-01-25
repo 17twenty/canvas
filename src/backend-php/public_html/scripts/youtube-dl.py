@@ -586,7 +586,6 @@ class FileDownloader(object):
 	def to_file(self, percent_str, eta_str):
 		f = open(self._filename + u'.progress.json', 'w')
 		json.dump([percent_str, eta_str], f)
-		f.write('\n')
 		f.close()
 
 	def to_stderr(self, message):
