@@ -11,7 +11,7 @@ $videoUrl = urldecode($_GET["url"]); //"http://www.youtube.com/watch?v=6iK4dy74i
 
 $path  = dirname(getcwd())."\\scripts\\youtube-dl.py";
 
-exec("C:\\Python27\\python.exe " . $path . " " . $videoUrl." -F", $result);
+exec("C:\\Python27\\python.exe " . $path . " " . escapeshellarg($videoUrl)." -F", $result);
 
 //print_r($result);
 $imploded = implode("\n", $result);
@@ -24,7 +24,7 @@ rsort($formats);
 if (count($formats) > 0)
 {
 	$format = $formats[0];
-	exec("C:\\Python27\\python.exe " . $path . " " . $videoUrl." -f ". $format ." -w --write-info-json", $result2);
+	exec("C:\\Python27\\python.exe " . $path . " " . escapeshellarg($videoUrl)." -f ". $format ." -w --write-info-json", $result2);
 	//print_r($result2);
 	$imploded = implode("\n", $result2);
 	
