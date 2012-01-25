@@ -135,7 +135,7 @@ function init()
 			  data: {sequence: sequence},
 			  dataType: "script"
 			});
-	},60000); //TODO: Put back to 5000
+	},1000);
 
 	// Set Framerate
 	renderTimeout = setInterval(autoRender,50); //50

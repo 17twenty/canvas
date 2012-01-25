@@ -11,7 +11,7 @@ $videoUrl = urldecode($_GET["url"]); //"http://www.youtube.com/watch?v=6iK4dy74i
 
 $path  = dirname(getcwd())."\\scripts\\youtube-dl.py";
 
-exec("C:\\Python27\\python.exe " . $path . " " . $videoUrl." -F --write-info-json", $result);
+exec("C:\\Python27\\python.exe " . $path . " " . $videoUrl." -F", $result);
 
 //print_r($result);
 $imploded = implode("\n", $result);
