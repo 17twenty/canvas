@@ -582,6 +582,11 @@ class FileDownloader(object):
 				output = output.encode(preferredencoding(), 'ignore')
 			self._screen_file.write(output)
 			self._screen_file.flush()
+			
+	def to_file(self, percent_str, eta_str):
+		f = open(self._filename + u'.progress.json', 'w')
+		json.dump([percent_str, eta_str], f)
+		f.close()
 
 	def to_stderr(self, message):
 		"""Print message to stderr."""
@@ -684,6 +689,7 @@ class FileDownloader(object):
 			return
 		self.to_screen(u'\r[download] %s of %s at %s ETA %s' %
 				(percent_str, data_len_str, speed_str, eta_str), skip_eol=True)
+		self.to_file(percent_str, eta_str)
 		self.to_cons_title(u'youtube-dl - %s of %s at %s ETA %s' %
 				(percent_str.strip(), data_len_str.strip(), speed_str.strip(), eta_str.strip()))
 
@@ -755,6 +761,7 @@ class FileDownloader(object):
 				raise MaxDownloadsReached()
 
 		filename = self.prepare_filename(info_dict)
+		self._filename = filename
 		
 		# Forced printings
 		if self.params.get('forcetitle', False):
