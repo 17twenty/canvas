@@ -588,7 +588,7 @@ function myUp(e){
 		currentY = e.pageY;
 		canvas.onmousemove = null;
 
-		if (removeIcons == null) removeIcons=setTimeout("displayIcons = false;",3000);
+		if (removeIcons == null) removeIcons=setTimeout("displayIcons = false;render();",3000);
 		if (moved_flag == false && (drag_flag || touch_flag)) {
 			if (objects[imageId].type == VIDEO) {
 				console.log("Play Video");
