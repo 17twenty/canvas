@@ -44,6 +44,8 @@ if (count($formats) > 0)
 	echo $json;
 	if (copy(getcwd()."\\".$file, dirname(getcwd())."\\objects\\".$file)) {
 		unlink(getcwd()."\\".$file);
+		unlink(getcwd()."\\".$json_file);
+		unlink(getcwd()."\\".$file.".progress.json");
 	}
 }
 else
