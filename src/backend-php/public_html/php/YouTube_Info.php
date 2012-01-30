@@ -17,5 +17,7 @@ $imploded = implode("\n", $result);
 preg_match("(JSON to: (.*json))", $imploded, $matches);
 $json_file = $matches[1];
 $json = file_get_contents($json_file);
+
+unlink(getcwd()."\\".$json_file);
 echo $json;
 ?>
