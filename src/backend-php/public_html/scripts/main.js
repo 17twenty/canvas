@@ -135,7 +135,7 @@ function init()
 			  data: {sequence: sequence},
 			  dataType: "script"
 			});
-	},1000);
+	},5000); //increased to 5s to help with bandwidth issues
 
 	// Set Framerate
 	renderTimeout = setInterval(autoRender,50); //50

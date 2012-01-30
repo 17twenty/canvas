@@ -24,7 +24,7 @@ rsort($formats);
 if (count($formats) > 0)
 {
 	$format = $formats[0];
-	exec("C:\\Python27\\python.exe " . $path . " " . escapeshellarg($videoUrl)." -f ". $format ." -w --write-info-json", $result2);
+	exec("C:\\Python27\\python.exe " . $path . " " . escapeshellarg($videoUrl)." -f -c". $format ." -w --write-info-json", $result2);
 	//print_r($result2);
 	$imploded = implode("\n", $result2);
 	
