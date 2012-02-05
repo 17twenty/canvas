@@ -74,7 +74,7 @@ function validateForm(form)
 		youtube = JSON.parse(data);
 		document.getElementById('YouTubeList').innerHTML = "<img style='float:left' src='"+youtube.thumbnail+"' height='50'><div style='width:10px; float:left'>&nbsp;</div><div class='YouTubeContent'><b>" +youtube.title+ "</b><br/>"+youtube.description+"<br/><b>Downloading ... Please Wait</b></div>";
 		YouTube_Progress_Function=setInterval(function() {
-			$.get('php/'+youtube.id+'.webm.progress.json', function(youtube_progress) {
+			$.get('objects/'+youtube.id+'.webm.progress.json', function(youtube_progress) {
 				document.getElementById('YouTubeList').innerHTML = "<img style='float:left' src='"+youtube.thumbnail+"' height='50'><div style='width:10px; float:left'>&nbsp;</div><div class='YouTubeContent'><b>" +youtube.title+ "</b><br/>"+youtube.description+"<br/><b>Downloading "+youtube_progress[0]+" ... ETA: "+youtube_progress[1]+"</b></div>";
 			});
 		},500);
