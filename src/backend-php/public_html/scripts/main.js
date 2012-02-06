@@ -89,7 +89,7 @@ var currentX;
 var currentY;
 
 
-var removeIcons;
+var removeIcons = null;
 
 var bgImage = new Image;
 bgImage.src = "images/bg.jpg";
@@ -439,7 +439,7 @@ function myDown(e){
 					rotate_offset = Math.atan2((temp_y - (objects[i].y * window.innerHeight)) , (temp_x - (objects[i].x * window.innerWidth))) * 180 / Math.PI - objects[i].rotation;
 		            rotate_flag = true;
 					displayIcons = true;
-					if (removeIcons != null) clearTimeout(removeIcons);
+					if (removeIcons != null) {clearTimeout(removeIcons);removeIcons=null;}
 					return;
 				}
 				// Move hotspot
@@ -481,7 +481,7 @@ function myDown(e){
 					}
 					moved_flag = false;
 					displayIcons = true;  
-					if (removeIcons != null) clearTimeout(removeIcons);
+					if (removeIcons != null) {clearTimeout(removeIcons);removeIcons=null;};
 					
 					
 					return;
@@ -587,8 +587,11 @@ function myUp(e){
 		currentX = e.pageX;
 		currentY = e.pageY;
 		canvas.onmousemove = null;
-
-		if (removeIcons == null) removeIcons=setTimeout("displayIcons = false;render();",3000);
+		console.log(removeIcons);
+		if (removeIcons == null){
+			console.log("SetTimeout");
+			removeIcons=setTimeout("displayIcons = false; render(); console.log(\"HideIcons\"); removeIcons=null;",3000);
+		}
 		if (moved_flag == false && (drag_flag || touch_flag)) {
 			if (objects[imageId].type == VIDEO) {
 				console.log("Play Video");
