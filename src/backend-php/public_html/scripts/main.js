@@ -151,7 +151,8 @@ function init()
 	        dataType: 'json',
 	        url: 'php/index.php',
 	        done: function (e, data) {
-				apprise('Item caption?',{'input':true}, function(name) {
+				apprise('Please enter a caption?',{'confirm':false,'verify':false,'input':true,'animate':true,'textCancel':'Cancel'}, function(name) {
+					if (name == false) name = "";
 					$.each(data.result, function (index, file) {
 						if (file.error == null)	{
 							var type = IMAGE;
