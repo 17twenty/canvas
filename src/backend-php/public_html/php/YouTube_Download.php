@@ -1,6 +1,6 @@
 <?php
 
-ini_set('max_execution_time', 300); //300 seconds = 5 minutes
+ini_set('max_execution_time', 3000); //300 seconds = 5 minutes
 if (array_key_exists("url", $_GET) == false)
 {
 	print("{\"error\" : \"URL not supplied\"}");
@@ -9,6 +9,7 @@ if (array_key_exists("url", $_GET) == false)
 $videoUrl = urldecode($_GET["url"]); //"http://www.youtube.com/watch?v=6iK4dy74ibY";
 //$videoUrl = "http://www.youtube.com/watch?v=4q5ZHU8yvLQ";
 
+chdir(dirname(getcwd())."\\objects");
 $path  = dirname(getcwd())."\\scripts\\youtube-dl.py";
 
 exec("C:\\Python27\\python.exe " . $path . " " . escapeshellarg($videoUrl)." -F", $result);
@@ -42,11 +43,11 @@ if (count($formats) > 0)
 	$decoded_json["filename"] = $file;
 	$json = json_encode($decoded_json);
 	echo $json;
-	if (copy(getcwd()."\\".$file, dirname(getcwd())."\\objects\\".$file)) {
-		unlink(getcwd()."\\".$file);
+	//if (copy(getcwd()."\\".$file, dirname(getcwd())."\\objects\\".$file)) {
+	//	unlink(getcwd()."\\".$file);
 		unlink(getcwd()."\\".$json_file);
 		unlink(getcwd()."\\".$file.".progress.json");
-	}
+	//}
 }
 else
 {
