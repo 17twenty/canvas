@@ -34,7 +34,7 @@ var youtube;
 
 function validateForm(form)
 {
-	document.getElementById('YouTubeList').innerHTML = "<b>Downloading ... Please Wait</b>";
+	document.getElementById('YouTubeList').innerHTML = "<b>Downloading ... Please Wait</b> <img src='images/throbber.gif' />";
 	$.ajax({
 	  type: "GET",
 	  url: "php/YouTube_Download.php",
@@ -72,10 +72,10 @@ function validateForm(form)
 
 	$.get('php/YouTube_Info.php?url='+form.currentTarget.URL.value, function(data) {
 		youtube = JSON.parse(data);
-		document.getElementById('YouTubeList').innerHTML = "<img style='float:left' src='"+youtube.thumbnail+"' height='50'><div style='width:10px; float:left'>&nbsp;</div><div class='YouTubeContent'><b>" +youtube.title+ "</b><br/>"+youtube.description+"<br/><b>Downloading ... Please Wait</b></div>";
+		document.getElementById('YouTubeList').innerHTML = "<img style='float:left' src='"+youtube.thumbnail+"' height='50'><div style='width:10px; float:left'>&nbsp;</div><div class='YouTubeContent'><b>" +youtube.title+ "</b><br/>"+youtube.description+"<br/><b>Downloading ... Please Wait</b> <img src='images/throbber.gif' /></div>";
 		YouTube_Progress_Function=setInterval(function() {
 			$.get('php/'+youtube.id+'.webm.progress.json', function(youtube_progress) {
-				document.getElementById('YouTubeList').innerHTML = "<img style='float:left' src='"+youtube.thumbnail+"' height='50'><div style='width:10px; float:left'>&nbsp;</div><div class='YouTubeContent'><b>" +youtube.title+ "</b><br/>"+youtube.description+"<br/><b>Downloading "+youtube_progress[0]+" ... ETA: "+youtube_progress[1]+"</b></div>";
+				document.getElementById('YouTubeList').innerHTML = "<img style='float:left' src='"+youtube.thumbnail+"' height='50'><div style='width:10px; float:left'>&nbsp;</div><div class='YouTubeContent'><b>" +youtube.title+ "</b><br/>"+youtube.description+"<br/><b>Downloading "+youtube_progress[0]+" ... ETA: "+youtube_progress[1]+"</b> <img src='images/throbber.gif' /></div>";
 			});
 		},500);
 	});
