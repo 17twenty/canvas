@@ -17,7 +17,8 @@ exec("C:\\Python27\\python.exe " . $path . " " . escapeshellarg($videoUrl)." -F"
 //print_r($result);
 $imploded = implode("\n", $result);
 
-$numWebm = preg_match_all ("(\n([0-9]{2}).*webm)", $imploded, $matches);
+//$numWebm = preg_match_all ("(\n([0-9]{2}).*webm)", $imploded, $matches); // all webm formats
+$numWebm = preg_match_all ("(\n(4[3-4]{1}).*webm)", $imploded, $matches); // 43 and 44 only
 
 $formats = $matches[1];
 rsort($formats);
@@ -35,9 +36,11 @@ if (count($formats) > 0)
 	//echo "JSON file: ".$json_file."\n";
 	$json = file_get_contents($json_file);
 	$decoded_json = json_decode($json, true);
-	
-	if (preg_match("(Destination: (.*))", $imploded, $matches) == 0)	
+	$Downloaded = preg_match("(Destination: (.*))", $imploded, $matches);
+	if ($Downloaded == 0)	
+	{
 		preg_match("((.*).info.json)", $json_file, $matches);
+	}
 	$file = $matches[1];
 	
 	$decoded_json["filename"] = $file;
@@ -46,7 +49,7 @@ if (count($formats) > 0)
 	//if (copy(getcwd()."\\".$file, dirname(getcwd())."\\objects\\".$file)) {
 	//	unlink(getcwd()."\\".$file);
 		unlink(getcwd()."\\".$json_file);
-		unlink(getcwd()."\\".$file.".progress.json");
+		if ($Downloaded != 0) unlink(getcwd()."\\".$file.".progress.json");
 	//}
 }
 else

@@ -275,11 +275,19 @@ function convertx(x, size) {return Math.floor((x - (size/2)) * window.innerWidth
 function converty(y, size, aspectRatio) {return Math.floor((y * window.innerHeight - ((size/2)* aspectRatio) * window.innerWidth));}
 function convertSize(size) {return Math.floor(size * window.innerWidth);}
 
+function formatTime(time) {
+	var seconds = parseInt( time % 60);
+	if (seconds < 10) seconds = "0"+seconds;
+	return parseInt( time / 60 ) % 60+":"+seconds;
+}
+
 function drawImage(image)
 {
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
 	var size = convertSize(image.size);
     // console.log("drawImage " + v.width + ", " + v.height);
     ctx.save();  // Save co-ordinate system
+    
     ctx.translate(Math.floor(image.x * window.innerWidth), Math.floor(image.y * window.innerHeight));
     ctx.rotate(image.rotation * Math.PI / 180);
 
@@ -308,7 +316,14 @@ function drawImage(image)
     	ctx.font = "20px 'Cabin Sketch', cursive";
     	ctx.textBaseline = "middle";
     	ctx.textAlign = "center";
-    	ctx.fillText(image.desc, 0, 0.5*size*image.aspectRatio + 5, size);
+    	
+    	
+    	if (VIDEO == image.type && (image.image.paused ||  image.image.ended))
+    		ctx.fillText(image.desc+" ["+formatTime(image.image.duration)+"]", 0, 0.5*size*image.aspectRatio + 5, size);
+    	else if (VIDEO == image.type)
+    		ctx.fillText(image.desc+" ["+formatTime(image.image.currentTime)+"/"+formatTime(image.image.duration)+"]", 0, 0.5*size*image.aspectRatio + 5, size);
+    	else
+    		ctx.fillText(image.desc, 0, 0.5*size*image.aspectRatio + 5, size);
     }
 
     ctx.drawImage(image.image, -0.5*size, -0.5*size * image.aspectRatio - 15, size, (size * image.aspectRatio));
@@ -593,7 +608,8 @@ function myUp(e){
 		if (moved_flag == false && (drag_flag || touch_flag)) {
 			if (objects[imageId].type == VIDEO) {
 				console.log("Play Video");
-				if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else objects[imageId].image.pause();
+				if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else {objects[imageId].image.currentTime = 0; objects[imageId].image.pause();}
+				
 			}
 		}
 		//console.log("myUp: " + drag_flag + ", " + single_touch_flag);
