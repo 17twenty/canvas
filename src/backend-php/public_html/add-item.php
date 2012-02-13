@@ -34,53 +34,51 @@ var youtube;
 
 function validateForm(form)
 {
-	document.getElementById('YouTubeList').innerHTML = "<b>Downloading ... Please Wait</b>";
-	$.ajax({
-	  type: "GET",
-	  url: "php/YouTube_Download.php",
-	  data: {url: form.currentTarget.URL.value},
-	  datatype: "json",
-	  success: function(response){ 
-		  var youtube = JSON.parse(response);
-		  if(youtube.error == null)
-		  {
-			type = VIDEO;
-			$.ajax({
-				type: "GET",
-				url: "ajax-insert.php",
-				data: {
-					x: 0.5,
-					y: 0.5,
-					size: 0.2,
-					rotation: ((Math.random()*60)-30),
-					name: youtube.title,
-					type: type,
-					link: "objects/"+youtube.filename
-				},
-				  dataType: "script"
-			});
-			disablePopup();
-			clearTimeout(YouTube_Progress_Function);
-			setTimeout("PopupMain()",2000);
-		  }
-		  else
-		  {
-			 document.getElementById('YouTubeList').innerHTML = "<b>Download Failed - Clip does not contain a WEBM format video";
-		  }
-	  }
-	});
+	document.getElementById('YouTubeList').innerHTML = "<b>Downloading ... Please Wait</b> <img src='images/throbber.gif' />";
 
-	$.get('php/YouTube_Info.php?url='+form.currentTarget.URL.value, function(data) {
+	$.get('php/YouTube_Info.php?url='+form.target.URL.value, function(data) { // Get initial YouTube info
 		youtube = JSON.parse(data);
-		document.getElementById('YouTubeList').innerHTML = "<img style='float:left' src='"+youtube.thumbnail+"' height='50'><div style='width:10px; float:left'>&nbsp;</div><div class='YouTubeContent'><b>" +youtube.title+ "</b><br/>"+youtube.description+"<br/><b>Downloading ... Please Wait</b></div>";
+		document.getElementById('YouTubeList').innerHTML = "<img style='float:left' src='"+youtube.thumbnail+"' height='50'><div style='width:10px; float:left'>&nbsp;</div><div class='YouTubeContent'><b>" +youtube.title+ "</b><br/>"+youtube.description+"<br/><b>Downloading ... Please Wait</b> <img src='images/throbber.gif' /></div>";
 		YouTube_Progress_Function=setInterval(function() {
 			$.get('objects/'+youtube.id+'.webm.progress.json', function(youtube_progress) {
-				document.getElementById('YouTubeList').innerHTML = "<img style='float:left' src='"+youtube.thumbnail+"' height='50'><div style='width:10px; float:left'>&nbsp;</div><div class='YouTubeContent'><b>" +youtube.title+ "</b><br/>"+youtube.description+"<br/><b>Downloading "+youtube_progress[0]+" ... ETA: "+youtube_progress[1]+"</b></div>";
+				document.getElementById('YouTubeList').innerHTML = "<img style='float:left' src='"+youtube.thumbnail+"' height='50'><div style='width:10px; float:left'>&nbsp;</div><div class='YouTubeContent'><b>" +youtube.title+ "</b><br/>"+youtube.description+"<br/><b>Downloading "+youtube_progress[0]+" ... ETA: "+youtube_progress[1]+"</b> <img src='images/throbber.gif' /></div>";
 			});
 		},500);
-	});
-
-
+		$.ajax({	// Start the download
+			type: "GET",
+			url: "php/YouTube_Download.php",
+			data: {url: form.target.URL.value},
+			datatype: "json",
+			success: function(response){ 
+				clearTimeout(YouTube_Progress_Function);
+				var youtube = JSON.parse(response);
+				if(youtube.error == null)
+				{
+					type = VIDEO;
+					$.ajax({
+						type: "GET",
+						url: "ajax-insert.php",
+						data: {
+							x: 0.5,
+							y: 0.5,
+							size: 0.2,
+							rotation: ((Math.random()*60)-30),
+							name: youtube.title,
+							type: type,
+							link: "objects/"+youtube.filename
+						},
+						dataType: "script"
+					});
+					disablePopup();
+					setTimeout("PopupMain()",2500);
+				}
+				else
+				{
+					document.getElementById('YouTubeList').innerHTML = "<b>Download Failed - Clip does not contain a WEBM format video";
+				}
+			}
+		});
+		});
 }
 
 function YouTube()
