@@ -104,6 +104,8 @@ var target = new Image;
 target.src = "images/target.png";
 var add = new Image;
 add.src = "images/add.png";
+var CDPImage = new Image;
+CDPImage.src = "images/cdp.png";
 
 function init()
 {
@@ -138,7 +140,7 @@ function init()
 	},5000); //increased to 5s to help with bandwidth issues
 
 	// Set Framerate
-	renderTimeout = setInterval(autoRender,50); //50
+	renderTimeout = setInterval(autoRender,25); //50
 	
 	// Drag and drop stuff
 	canvas.addEventListener("drop", function(e) {
@@ -314,7 +316,7 @@ function drawImage(image)
     ctx.drawImage(image.image, -0.5*size, -0.5*size * image.aspectRatio - 15, size, (size * image.aspectRatio));
 
     if (VIDEO == image.type && (image.image.paused ||  image.image.ended))
-    {
+    {    	
     	ctx.beginPath(); 
     	ctx.moveTo(-0.1*size,-0.1*size-15);
     	ctx.lineTo(-0.1*size, 0.1*size-15);
@@ -327,7 +329,7 @@ function drawImage(image)
     	ctx.stroke(); 
 
     	ctx.fillStyle = "#FFFFFF"; 
-    	ctx.fillText("Click to Play", 0, 0.2*size*image.aspectRatio, size);
+    	ctx.fillText("Click to Play", 0, 0.2*size*image.aspectRatio, size);  
     }
 
     ctx.restore();  // Restore co-ordinate system
@@ -689,6 +691,7 @@ function render()
     if(touches[2].active) ctx.drawImage(target, touches[2].x - 20 , touches[2].y - 20 , 40, 40);	// Target 1
     if(touches[3].active) ctx.drawImage(target, touches[3].x - 20 , touches[3].y - 20 , 20, 20);	// Target 2
     ctx.drawImage(add, addX, addY, addSize, addSize);	// Add image
+	ctx.drawImage(CDPImage, 0, 0, 134, 127);
 }
 
 init();
