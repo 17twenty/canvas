@@ -30,6 +30,7 @@ DELETE = 2;
 
 hotspot_size = 45;
 minimum_object_size = 0.08;  //% of screen width
+renderFPS = 20;
 
 // GLOBALS
 var drag_flag = false; 
@@ -104,6 +105,8 @@ var target = new Image;
 target.src = "images/target.png";
 var add = new Image;
 add.src = "images/add.png";
+var arrange = new Image;
+arrange.src = "images/arrange.png";
 var CDPImage = new Image;
 CDPImage.src = "images/cdp.png";
 
@@ -140,7 +143,7 @@ function init()
 	},5000); //increased to 5s to help with bandwidth issues
 
 	// Set Framerate
-	renderTimeout = setInterval(autoRender,25); //50
+	renderTimeout = setInterval(autoRender,1000/renderFPS); //50
 	
 	// Drag and drop stuff
 	canvas.addEventListener("drop", function(e) {
@@ -262,6 +265,7 @@ function resize()
 	addSize = Math.floor(0.05 * window.innerWidth);
 	addX = window.innerWidth -  addSize - 10;
 	addY = 10;
+	arrangeY = addY + addSize + 20;
 	
 	popupContact.style.width = Math.floor(window.innerWidth * 0.5) + "px";
 	popupContact.style.height = Math.floor(window.innerHeight * 0.8) + "px";
@@ -397,6 +401,57 @@ function myDown(e){
 			centerPopup();
 			//load popup
 			loadPopup();
+		}
+	    else if (	(e.pageX >= addX ) &&
+				(e.pageX <= addX + addSize) &&
+				(e.pageY >= arrangeY) &&
+				(e.pageY <= arrangeY + addSize)  )
+		{
+	    	// Arrange items
+	    	arrange_offset = 100;	// Distance in from the edge
+	    	arrange_circum = 2 * canvas.width + 2 * canvas.height - 8 * arrange_offset;	// Total length of the path
+	    	arrange_spacing = arrange_circum / objects.length;
+	    	console.log("Total Circumference: "+arrange_circum);
+	    	console.log("Spacing: "+arrange_spacing);
+
+			var l = objects.length;
+		    for (var i = l-1; i >= 0; i--)
+	    	{
+		    	arrange_position = arrange_spacing * i;
+		    	if (arrange_position < canvas.width - 2 * arrange_offset)			// Top
+		    	{
+		    		arrange_x = arrange_position + arrange_offset;
+		    		arrange_y = arrange_offset;
+		    	}
+		    	else if (arrange_position < canvas.width + canvas.height - 4 * arrange_offset)	//Right
+		    	{
+		    		arrange_x = canvas.width - arrange_offset;
+		    		arrange_y = (arrange_position - (canvas.width - 2 * arrange_offset)) + arrange_offset;
+		    	}
+		    	else if (arrange_position < 2 * canvas.width + canvas.height - 6 * arrange_offset)	//Bottom
+		    	{
+		    		arrange_x = canvas.width - arrange_offset - (arrange_position - (canvas.width + canvas.height - 4 * arrange_offset));
+		    		arrange_y = canvas.height - arrange_offset;
+		    	}
+		    	else //Left
+		    	{
+		    		arrange_x = arrange_offset;
+		    		arrange_y = canvas.height - arrange_offset - (arrange_position - (2 * canvas.width + canvas.height - 6 * arrange_offset));
+		    	}
+		    	console.log("Object "+i+": "+arrange_x+", "+arrange_y);
+		    	objects[i].x = arrange_x / canvas.width;
+		    	objects[i].y = arrange_y / canvas.height;
+		    	objects[i].size = minimum_object_size;
+		    	objects[i].rotation = ((Math.random()*60)-30);
+				$.ajax({
+					type: "GET",
+					url: "ajax-update.php",
+					data: { id: objects[i].id, x: objects[i].x, y: objects[i].y, z: objects[i].z, size: objects[i].size, rotation: objects[i].rotation },
+					cache: false,
+					success: function(html){ sequence = html; }
+				});
+		    	
+	    	}
 		}
 		else 
 		{
@@ -707,6 +762,7 @@ function render()
     if(touches[2].active) ctx.drawImage(target, touches[2].x - 20 , touches[2].y - 20 , 40, 40);	// Target 1
     if(touches[3].active) ctx.drawImage(target, touches[3].x - 20 , touches[3].y - 20 , 20, 20);	// Target 2
     ctx.drawImage(add, addX, addY, addSize, addSize);	// Add image
+    ctx.drawImage(arrange, addX, arrangeY, addSize, addSize);	// Arrange image
 	ctx.drawImage(CDPImage, 0, 0, 134, 127);
 }
 
