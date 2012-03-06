@@ -109,6 +109,8 @@ var arrange = new Image;
 arrange.src = "images/arrange.png";
 var CDPImage = new Image;
 CDPImage.src = "images/cdp.png";
+var progressImage = new Image;
+progressImage.src = "images/progress.png";
 
 function init()
 {
@@ -349,6 +351,20 @@ function drawImage(image)
 
     	ctx.fillStyle = "#FFFFFF"; 
     	ctx.fillText("Click to Play", 0, 0.2*size*image.aspectRatio, size);  
+    }
+    if (VIDEO == image.type && !(image.image.paused ||  image.image.ended))
+    { 
+    	// Progress Bar
+//    	ctx.beginPath(); 
+//    	ctx.moveTo(-0.5*size, 0.5*size * image.aspectRatio - 15);
+//    	ctx.lineTo( 0.5*size, 0.5*size * image.aspectRatio - 15);
+//    	ctx.closePath(); 
+//    	ctx.lineWidth = 10;
+//    	ctx.strokeStyle = "#FF0000"; 
+//    	//ctx.globalAlpha = 0.2;  
+//    	ctx.stroke();   
+    	ctx.drawImage(progressImage, -0.5*size - hotspot_size/4 + (image.image.currentTime/image.image.duration * size), 0.5*size * image.aspectRatio - 15 - hotspot_size/4, hotspot_size/2,hotspot_size/2);
+		
     }
 
     ctx.restore();  // Restore co-ordinate system
