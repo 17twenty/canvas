@@ -81,11 +81,52 @@ function validateForm(form)
 		});
 }
 
+function validateFormWeb(form)
+{
+	type = WEB;
+	url = form.target.URL.value;
+	document.getElementById('ExtraContent').innerHTML = "<img src='images/throbber.gif' /> <b>Analysing Images</b>";
+	
+
+
+	
+	$.ajax({
+		type: "GET",
+		url: "ajax-insert.php",
+		data: {
+			x: 0.5,
+			y: 0.5,
+			size: 0.2,
+			rotation: ((Math.random()*60)-30),
+			name: "Temp Title",
+			type: type,
+			link: "images/news.png",
+			url: url
+		},
+		//dataType: "script",
+		success: function(){
+			disablePopup();
+			setTimeout("PopupMain()",2500);
+			}
+	});
+}
+
+
 function YouTube()
 {
 	$.ajax({
 	  type: "GET",
 	  url: "php/YouTube.php",
+	  datatype: "html",
+	  success: function(html){ document.getElementById('popupFrame').innerHTML = html; }
+	});
+}
+
+function WebLink()
+{
+	$.ajax({
+	  type: "GET",
+	  url: "php/addWebLink.php",
 	  datatype: "html",
 	  success: function(html){ document.getElementById('popupFrame').innerHTML = html; }
 	});
@@ -105,25 +146,27 @@ function PopupMain()
 </script>
 
 <div id="popupFrame">
-	<h1>Add new item</h1>
-	<br/><br/>
-	<div align="center">
-	<table border=0 cellspacing=5>
-		<tr>
-			<td><a href='#' onClick="UploadImage();"><img src='images/picture.png' /></a></td>
-			<td width='100px'></td>
-			<td><a href='#' onClick="YouTube();"><img src='images/YouTube.png' /></a></td>
-<!-- 			<td>&nbsp;&nbsp;&nbsp;</td> -->
-<!-- 			<td><img src='images/news_dim.png' /></td> -->
-		</tr>
-		<tr>
-			<td><div align='center'><a href='#' onClick="UploadImage();">Upload object</a></div></td>
-			<td></td>
-			<td><div align='center'><a href='#' onClick="YouTube();">Link to YouTube</a></div></td>
-<!-- 			<td></td> -->
-<!-- 			<td><div align='center'>BBC News</br>TO DO</div></td> -->
-
-		</tr>
-	</table>
+	<div id="menu">
+		<h1>Add new item</h1>
+		<br/><br/>
+		<div align="center">
+		<table border=0 cellspacing=5>
+			<tr>
+				<td><div align='center'><a href='#' onClick="UploadImage();"><img src='images/picture.png' /></a></div></td>
+				<td width='100px'></td>
+				<td><div align='center'><a href='#' onClick="YouTube();"><img src='images/YouTube.png' /></a></div></td>
+				<td width='100px'></td>
+	 			<td><div align='center'><a href='#' onClick="WebLink();"><img src='images/news.png' /></a></div></td>
+			</tr>
+			<tr>
+				<td><div align='center'><a href='#' onClick="UploadImage();">Upload object</a></div></td>
+				<td></td>
+				<td><div align='center'><a href='#' onClick="YouTube();">Link to YouTube</a></div></td>
+	 			<td></td>
+	 			<td><div align='center'><a href='#' onClick="WebLink();">Web Link</a></div></td>
+	
+			</tr>
+		</table>
+		</div>
 	</div>
 </div>

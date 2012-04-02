@@ -56,7 +56,7 @@
 	                isnew = false;
 	            }
 	        }
-	        if (isnew)  addObject(" . $row['id']. ", " . $row['type']. ", " . $row['x']. ", " . $row['y']. ", " . $row['z']. ", " . $row['size']. ", " . $row['rotation']. ", \"" . $row['name']. "\", \"" . $row['link']. "\") ;
+	        if (isnew)  addObject(" . $row['id']. ", " . $row['type']. ", " . $row['x']. ", " . $row['y']. ", " . $row['z']. ", " . $row['size']. ", " . $row['rotation']. ", \"" . $row['name']. "\", \"" . $row['link']. "\", \"" . $row['URL'] . "\") ;
         }
         ";
     }

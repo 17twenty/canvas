@@ -64,8 +64,11 @@ width:600px;
 background:#FFFFFF;
 border:2px solid #cecece;
 z-index:2;
-padding:12px;
+padding:1px;
 font-size:13px;
+}
+#menu{
+padding:13px;
 }
 #popupContact h1{
 text-align:left;

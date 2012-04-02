@@ -23,6 +23,7 @@
 // CONSTANTS
 IMAGE = 0;
 VIDEO = 1;
+WEB = 2;
 
 UPDATE = 0;
 REFRESH = 1;
@@ -88,6 +89,12 @@ touches[3] = {
 
 var currentX;
 var currentY;
+var oldX;
+var oldY;
+
+var volume = 0.5;
+var tempVolume = 0.5;
+var volumeFlag = false;
 
 
 var removeIcons = null;
@@ -107,10 +114,23 @@ var add = new Image;
 add.src = "images/add.png";
 var arrange = new Image;
 arrange.src = "images/arrange.png";
+var volumeImage0 = new Image;
+volumeImage0.src = "images/volume0.png";
+var volumeImage1 = new Image;
+volumeImage1.src = "images/volume1.png";
+var volumeImage2 = new Image;
+volumeImage2.src = "images/volume2.png";
+var volumeImage3 = new Image;
+volumeImage3.src = "images/volume3.png";
+var volumeSlider = new Image;
+volumeSlider.src = "images/volumeSlider.png";
 var CDPImage = new Image;
 CDPImage.src = "images/cdp.png";
 var progressImage = new Image;
 progressImage.src = "images/progress.png";
+var webImage = new Image;
+webImage.src = "images/web.png";
+
 
 function init()
 {
@@ -207,7 +227,7 @@ function CanvasImage() {
 	this.loaded = false;
 }
 
-function addObject(id, type, x, y, z, size, rotation, desc, src) {
+function addObject(id, type, x, y, z, size, rotation, desc, src, url) {
 
 	console.log("Add: " + src);
 	var tempImage = new CanvasImage;
@@ -219,7 +239,11 @@ function addObject(id, type, x, y, z, size, rotation, desc, src) {
 	tempImage.size = size;
 	tempImage.rotation = rotation;
 	tempImage.desc = desc;
-
+	if(type == WEB)
+	{
+		tempImage.url = url;
+		console.log("Web: " + url);
+	}
 	if(type == VIDEO)
 	{
 		tempImage.image = document.createElement('video');
@@ -229,8 +253,9 @@ function addObject(id, type, x, y, z, size, rotation, desc, src) {
 		document.body.appendChild(tempImage.image);
 		var newid = objects.push(tempImage) - 1;
 		objects[newid].image.newid = newid;
+		objects[newid].image.volume = convertVolume(volume);
 	}
-	else if(type == IMAGE)
+	else if(type == IMAGE || type == WEB)
 	{
 		tempImage.image.src = src;
 		var newid = objects.push(tempImage) - 1;
@@ -268,14 +293,16 @@ function resize()
 	addX = window.innerWidth -  addSize - 10;
 	addY = 10;
 	arrangeY = addY + addSize + 20;
+	volumeY = arrangeY + addSize + 20;
 	
-	popupContact.style.width = Math.floor(window.innerWidth * 0.5) + "px";
+	popupContact.style.width = Math.floor(window.innerWidth * 0.7) + "px";
 	popupContact.style.height = Math.floor(window.innerHeight * 0.8) + "px";
 	//iframe.style.height = Math.floor(window.innerHeight * 0.8) + "px";
 	
 	dropX  = 0.5 * window.innerWidth;
 	dropY  = 0.5 * window.innerHeight;
-	
+
+	centerPopup();
 	render();
 }
 
@@ -292,82 +319,89 @@ function formatTime(time) {
 function drawImage(image)
 {
 	ctx.setTransform(1, 0, 0, 1, 0, 0);
+	ctx.save();  // Save co-ordinate system
 	var size = convertSize(image.size);
-    // console.log("drawImage " + v.width + ", " + v.height);
-    ctx.save();  // Save co-ordinate system
-    
-    ctx.translate(Math.floor(image.x * window.innerWidth), Math.floor(image.y * window.innerHeight));
-    ctx.rotate(image.rotation * Math.PI / 180);
 
-    if((drag_flag || rotate_flag || resize_flag) && image.z == maxz)    
-    {
-    	ctx.shadowOffsetX = 10;
-    	ctx.shadowOffsetY = 10;
-    	ctx.shadowBlur    = 10;
-    	ctx.shadowColor   = 'rgba(0, 0, 0, 0.5)';    
-    }
-    
-    // Frame around each item
-    ctx.beginPath(); 
-    ctx.rect(-0.5*size-10, Math.floor(-0.5 * size * image.aspectRatio -25), size+20, Math.floor((size * image.aspectRatio)+50));	
-    ctx.fillStyle = "#FFFFFF"; 
-    ctx.fill();
+	if (image.type == IMAGE || image.type == VIDEO || image.type == WEB)
+	{
 
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-    ctx.shadowBlur    = 0;
-    ctx.shadowColor   = 'rgba(0, 0, 0, 0)';    
+		ctx.translate(Math.floor(image.x * window.innerWidth), Math.floor(image.y * window.innerHeight));
+		ctx.rotate(image.rotation * Math.PI / 180);
 
-    //if(fontsLoaded)
-    {
-    	ctx.fillStyle = "#000000"; 
-    	ctx.font = "20px 'Cabin Sketch', cursive";
-    	ctx.textBaseline = "middle";
-    	ctx.textAlign = "center";
-    	
-    	
-    	if (VIDEO == image.type && (image.image.paused ||  image.image.ended))
-    		ctx.fillText(image.desc+" ["+formatTime(image.image.duration)+"]", 0, 0.5*size*image.aspectRatio + 5, size);
-    	else if (VIDEO == image.type)
-    		ctx.fillText(image.desc+" ["+formatTime(image.image.currentTime)+"/"+formatTime(image.image.duration)+"]", 0, 0.5*size*image.aspectRatio + 5, size);
-    	else
-    		ctx.fillText(image.desc, 0, 0.5*size*image.aspectRatio + 5, size);
-    }
+		if((drag_flag || rotate_flag || resize_flag) && image.z == maxz)    
+		{
+			ctx.shadowOffsetX = 10;
+			ctx.shadowOffsetY = 10;
+			ctx.shadowBlur    = 10;
+			ctx.shadowColor   = 'rgba(0, 0, 0, 0.5)';    
+		}
 
-    ctx.drawImage(image.image, -0.5*size, -0.5*size * image.aspectRatio - 15, size, (size * image.aspectRatio));
+		// Frame around each item
+		ctx.beginPath(); 
+		ctx.rect(-0.5*size-10, Math.floor(-0.5 * size * image.aspectRatio -25), size+20, Math.floor((size * image.aspectRatio)+50));	
+		ctx.fillStyle = "#FFFFFF"; 
+		ctx.fill();
 
-    if (VIDEO == image.type && (image.image.paused ||  image.image.ended))
-    {    	
-    	ctx.beginPath(); 
-    	ctx.moveTo(-0.1*size,-0.1*size-15);
-    	ctx.lineTo(-0.1*size, 0.1*size-15);
-    	ctx.lineTo(0.1*size, -15);
-    	ctx.closePath(); 
-    	ctx.lineWidth = 10;
-    	ctx.strokeStyle = "#FFFFFF";  
-    	ctx.globalAlpha = 0.2;  
-    	ctx.lineJoin = 'round';
-    	ctx.stroke(); 
+		ctx.shadowOffsetX = 0;
+		ctx.shadowOffsetY = 0;
+		ctx.shadowBlur    = 0;
+		ctx.shadowColor   = 'rgba(0, 0, 0, 0)';    
 
-    	ctx.fillStyle = "#FFFFFF"; 
-    	ctx.fillText("Click to Play", 0, 0.2*size*image.aspectRatio, size);  
-    }
-    if (VIDEO == image.type && !(image.image.paused ||  image.image.ended))
-    { 
-    	// Progress Bar
-//    	ctx.beginPath(); 
-//    	ctx.moveTo(-0.5*size, 0.5*size * image.aspectRatio - 15);
-//    	ctx.lineTo( 0.5*size, 0.5*size * image.aspectRatio - 15);
-//    	ctx.closePath(); 
-//    	ctx.lineWidth = 10;
-//    	ctx.strokeStyle = "#FF0000"; 
-//    	//ctx.globalAlpha = 0.2;  
-//    	ctx.stroke();   
-    	ctx.drawImage(progressImage, -0.5*size - hotspot_size/4 + (image.image.currentTime/image.image.duration * size), 0.5*size * image.aspectRatio - 15 - hotspot_size/4, hotspot_size/2,hotspot_size/2);
-		
-    }
+		//if(fontsLoaded)
+		{
+			ctx.fillStyle = "#000000"; 
+			ctx.font = "20px 'Cabin Sketch', cursive";
+			ctx.textBaseline = "middle";
+			ctx.textAlign = "center";
 
-    ctx.restore();  // Restore co-ordinate system
+
+			if (VIDEO == image.type && (image.image.paused ||  image.image.ended))
+				ctx.fillText(image.desc+" ["+formatTime(image.image.duration)+"]", 0, 0.5*size*image.aspectRatio + 5, size);
+			else if (VIDEO == image.type)
+				ctx.fillText(image.desc+" ["+formatTime(image.image.currentTime)+"/"+formatTime(image.image.duration)+"]", 0, 0.5*size*image.aspectRatio + 5, size);
+			else
+				ctx.fillText(image.desc, 0, 0.5*size*image.aspectRatio + 5, size);
+		}
+
+		ctx.drawImage(image.image, -0.5*size, (-0.5*size * image.aspectRatio) - 15, size, (size * image.aspectRatio));
+
+		if (VIDEO == image.type && (image.image.paused ||  image.image.ended))
+		{    	
+			ctx.beginPath(); 
+			ctx.moveTo(-0.1*size,-0.1*size-15);
+			ctx.lineTo(-0.1*size, 0.1*size-15);
+			ctx.lineTo(0.1*size, -15);
+			ctx.closePath(); 
+			ctx.lineWidth = 10;
+			ctx.strokeStyle = "#FFFFFF";  
+			ctx.globalAlpha = 0.2;  
+			ctx.lineJoin = 'round';
+			ctx.stroke(); 
+
+			ctx.fillStyle = "#FFFFFF"; 
+			ctx.fillText("Click to Play", 0, 0.2*size*image.aspectRatio, size);  
+		}
+		if (VIDEO == image.type && !(image.image.paused ||  image.image.ended))
+		{ 
+			// Progress Bar
+//			ctx.beginPath(); 
+//			ctx.moveTo(-0.5*size, 0.5*size * image.aspectRatio - 15);
+//			ctx.lineTo( 0.5*size, 0.5*size * image.aspectRatio - 15);
+//			ctx.closePath(); 
+//			ctx.lineWidth = 10;
+//			ctx.strokeStyle = "#FF0000"; 
+//			//ctx.globalAlpha = 0.2;  
+//			ctx.stroke();   
+			ctx.drawImage(progressImage, -0.5*size - hotspot_size/4 + (image.image.currentTime/image.image.duration * size), 0.5*size * image.aspectRatio - 15 - hotspot_size/4, hotspot_size/2,hotspot_size/2);
+
+		}
+		if (WEB == image.type)
+			{
+    		ctx.drawImage(webImage, -size/6, (-size/6) - 15 , size/3, size/3);
+			}
+	}
+
+	ctx.restore();  // Restore co-ordinate system
 }
 
 function angle_cursor_to_corner(x,y, i, angle, mag ) { return Math.atan2(y - (objects[i].y * window.innerHeight + Math.sin(angle) * mag), x - (objects[i].x * window.innerWidth + Math.cos(angle) * mag) ) / Math.PI  * 180; }
@@ -394,6 +428,8 @@ function myDown(e){
 			console.log("Click");
 			touch = false;
 			canvas.onmousemove = myMove;
+			oldX = e.pageX;
+			oldY = e.pageY;
 			}
 		else	// touch event
 			{
@@ -416,19 +452,26 @@ function myDown(e){
 	    	//centering with css
 			centerPopup();
 			//load popup
+			$.ajax({
+				  type: "GET",
+				  url: "add-item.php",
+				  datatype: "html",
+				  success: function(html){ document.getElementById('popupFrame').innerHTML = html; }
+				});
+			
 			loadPopup();
 		}
+    	// Arrange items
 	    else if (	(e.pageX >= addX ) &&
 				(e.pageX <= addX + addSize) &&
 				(e.pageY >= arrangeY) &&
 				(e.pageY <= arrangeY + addSize)  )
 		{
-	    	// Arrange items
 	    	arrange_offset = 100;	// Distance in from the edge
 	    	arrange_circum = 2 * canvas.width + 2 * canvas.height - 8 * arrange_offset;	// Total length of the path
 	    	arrange_spacing = arrange_circum / objects.length;
-	    	console.log("Total Circumference: "+arrange_circum);
-	    	console.log("Spacing: "+arrange_spacing);
+	    	//console.log("Total Circumference: "+arrange_circum);
+	    	//console.log("Spacing: "+arrange_spacing);
 
 			var l = objects.length;
 		    for (var i = l-1; i >= 0; i--)
@@ -468,6 +511,19 @@ function myDown(e){
 				});
 		    	
 	    	}
+		}
+    	// Volume
+	    else if (	(e.pageX >= addX ) &&
+				(e.pageX <= addX + addSize) &&
+				(e.pageY >= volumeY) &&
+				(e.pageY <= volumeY + addSize)  )
+		{
+	    	volumeFlag = true;
+	    	tempVolume = volume;
+	    	console.log("Volume");
+			temp_x = (e.pageX);
+			temp_y = (e.pageY);
+			canvas.onmousemove = myMove;
 		}
 		else 
 		{
@@ -594,15 +650,14 @@ function findObjectId (id){
 
 function myMove(e){
 
-	
-    if (e.type != "MozTouchMove") moved_flag = true;
-    else
+
+	//console.log("Moved");
+    if (e.type == "MozTouchMove")
     {
     	//Work around for hyper sensitive touch events
     	if ( (e.pageX < touches[e.streamId].oldx - 2) || (e.pageX > touches[e.streamId].oldx + 2) || (e.pageY < touches[e.streamId].oldy - 2) || (e.pageY > touches[e.streamId].oldy + 2) ) moved_flag = true;
     	else
     		return;	
-		//console.log("Moved");
 		touches[e.streamId].oldx = e.pageX;
 		touches[e.streamId].oldy = e.pageY;
     		
@@ -645,6 +700,11 @@ function myMove(e){
     		objects[objectId].y = (touches[e.streamId].y + touches[e.streamId].tempy) / window.innerHeight;
     	}
     }
+    else
+    	{
+    	if ( (e.pageX < oldX - 2) || (e.pageX > oldX + 2) || (e.pageY < oldY - 2) || (e.pageY > oldY + 2) ) moved_flag = true;
+    	
+    	}
     currentX = e.pageX;
     currentY = e.pageY;
 	if (drag_flag)	{
@@ -656,11 +716,32 @@ function myMove(e){
 		objects[imageId].size = (Math.sqrt(Math.pow((e.pageY - (objects[imageId].y * window.innerHeight)),2) + Math.pow((e.pageX - (objects[imageId].x * window.innerWidth)),2)) * resise_ratio );
 		if (objects[imageId].size < minimum_object_size) objects[imageId].size = minimum_object_size;
 	}
+	if (volumeFlag) {
+		volume = ((temp_y - e.pageY) / (addSize*3)) + tempVolume;
+		
+		if (volume < 0) volume = 0;
+		if (volume > 1) volume = 1;
+		
+		updateVolume();
+		}
 	//render(); //Increase Framerate while moving an object
+}
+function updateVolume() {
+	var l = objects.length;
+    for (var i = 0; i < l; i++)  {
+    	if (objects[i].type == VIDEO) {
+    		objects[i].image.volume = convertVolume(volume);
+    	}
+    	
+    }
+}
+
+function convertVolume(volumeIn){
+	return  volume * volume;
 }
 
 function myUp(e){
-	//console.log("myUp");
+	console.log("myUp");
 	//canvas.onmouseup = null;
 	if (e.type == "MozTouchUp") //Touched
 	{
@@ -671,39 +752,50 @@ function myUp(e){
 		multitouch = false;
 		
 	}
-	//else
-	{
-		currentX = e.pageX;
-		currentY = e.pageY;
-		canvas.onmousemove = null;
-		console.log(removeIcons);
-		if (removeIcons == null){
-			console.log("SetTimeout");
-			removeIcons=setTimeout("displayIcons = false; render(); console.log(\"HideIcons\"); removeIcons=null;",3000);
+	if(volumeFlag)
+		{
+		volumeFlag = false;
 		}
-		if (moved_flag == false && (drag_flag || touch_flag)) {
-			if (objects[imageId].type == VIDEO) {
-				console.log("Play Video");
-				if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else {objects[imageId].image.currentTime = 0; objects[imageId].image.pause();}
-				
-			}
+	console.log("Moved? " + moved_flag);
+	currentX = e.pageX;
+	currentY = e.pageY;
+	canvas.onmousemove = null;
+	console.log(removeIcons);
+	if (removeIcons == null){
+		console.log("SetTimeout");
+		removeIcons=setTimeout("displayIcons = false; render(); console.log(\"HideIcons\"); removeIcons=null;",3000);
+	}
+	if (moved_flag == false && (drag_flag || touch_flag)) {
+		if (objects[imageId].type == VIDEO) {
+			console.log("Play Video");
+			if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else {objects[imageId].image.currentTime = 0; objects[imageId].image.pause();}
+			
 		}
-		//console.log("myUp: " + drag_flag + ", " + single_touch_flag);
-		if(drag_flag || rotate_flag || single_touch_flag){
+		if (objects[imageId].type == WEB) {
+			console.log("Open Weblink");
+			var popupHeight = $("#popupContact").height();
+			var popupWidth = $("#popupContact").width();
+			document.getElementById('popupFrame').innerHTML = "<iframe width="+popupWidth+" height="+popupHeight+" src=\""+objects[imageId].url+"\"></iframe>";
+			
+			loadPopup();
+			
+		}
+	}
+	//console.log("myUp: " + drag_flag + ", " + single_touch_flag);
+	if(drag_flag || rotate_flag || single_touch_flag){
 
-			if ( (currentX >= binX ) && (currentX <= binX + binSize) && (currentY >= binY) && (currentY <= binY + binSize)  && (drag_flag ||single_touch_flag) ) {
-				$.ajax({url: "ajax-delete.php", cache: false, data: {id:objects[imageId].id}, dataType: "script"});
-				objects.splice(imageId, 1);
-			}
-			else {
-				$.ajax({
-					type: "GET",
-					url: "ajax-update.php",
-					data: { id: objects[imageId].id, x: objects[imageId].x, y: objects[imageId].y, z: objects[imageId].z, size: objects[imageId].size, rotation: objects[imageId].rotation },
-					cache: false,
-					success: function(html){ sequence = html; }
-				});
-			}
+		if ( (currentX >= binX ) && (currentX <= binX + binSize) && (currentY >= binY) && (currentY <= binY + binSize)  && (drag_flag ||single_touch_flag) ) {
+			$.ajax({url: "ajax-delete.php", cache: false, data: {id:objects[imageId].id}, dataType: "script"});
+			objects.splice(imageId, 1);
+		}
+		else {
+			$.ajax({
+				type: "GET",
+				url: "ajax-update.php",
+				data: { id: objects[imageId].id, x: objects[imageId].x, y: objects[imageId].y, z: objects[imageId].z, size: objects[imageId].size, rotation: objects[imageId].rotation },
+				cache: false,
+				success: function(html){ sequence = html; }
+			});
 		}
 	}
 	if (touches[2].active == 0 && touches[3].active == 0) {
@@ -730,7 +822,7 @@ function autoRender()
     	if(objects[i].type == VIDEO && (objects[i].image.paused || objects[i].image.ended) != true)
     		videoPlaying = true;
     }
-	if (drag_flag || rotate_flag || videoPlaying || touch_flag)
+	if (drag_flag || rotate_flag || videoPlaying || touch_flag || volumeFlag)
 		render();
 }
 
@@ -780,6 +872,29 @@ function render()
     ctx.drawImage(add, addX, addY, addSize, addSize);	// Add image
     ctx.drawImage(arrange, addX, arrangeY, addSize, addSize);	// Arrange image
 	ctx.drawImage(CDPImage, 0, 0, 134, 127);
+	
+	ctx.fillStyle = "#000000"; 
+	ctx.font = "14px 'Cabin Sketch', cursive";
+	ctx.textBaseline = "middle";
+	ctx.textAlign = "center";
+	var volumeImage = volumeImage0;
+	if (volume > 0.75)	volumeImage = volumeImage3;
+	else if (volume > 0.5)	volumeImage = volumeImage2;
+	else if (volume > 0.25)	volumeImage = volumeImage1;
+
+	
+	if (volumeFlag)
+		{
+		ctx.drawImage(volumeSlider, addX, volumeY - ((1 - tempVolume) * addSize*3), addSize, addSize*4);	// VolumeSlider image
+		ctx.drawImage(volumeImage, addX, volumeY + (tempVolume * addSize*3) + (-1 * volume * (addSize*3)), addSize, addSize);	// Volume image
+
+		ctx.fillText(Math.floor(volume * 100) +"%", addX + (addSize/2), volumeY + (tempVolume * addSize*3) + (-1 * volume * (addSize*3)) + (addSize * 0.8), addSize);
+		}
+	else
+		{
+		ctx.drawImage(volumeImage, addX, volumeY, addSize, addSize);	// Volume image
+		ctx.fillText(Math.floor(volume * 100) +"%", addX + (addSize/2) , volumeY + (addSize * 0.8), addSize);
+		}
 }
 
 init();

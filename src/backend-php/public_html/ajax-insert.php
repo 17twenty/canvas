@@ -22,14 +22,17 @@
 */
 
 	include "../includes/config.php";
+	require_once 'php/simple_html_dom.php';
+	require_once 'php/url_to_absolute.php';
 
 	$x = $_GET["x"];
 	$y = $_GET["y"];
 	$size = $_GET["size"];
 	$rotation = $_GET["rotation"];
-	$name = $_GET["name"];
+	$name = addslashes($_GET["name"]);
 	$type = $_GET["type"];
 	$link = $_GET["link"];
+	$url = $_GET["url"];
 	
 	//Find latest sequence number, id and z
 	$query = "SELECT MAX(sequence), MAX(id), MAX(z) FROM content";
@@ -39,11 +42,40 @@
 	$id = $row['MAX(id)'] + 1;	//Increment id
 	$z = $row['MAX(z)'] + 1;	//Increment z
 	
+	if($type == 2) //WEB
+	{
+		$str = file_get_contents($url);
+		if(strlen($str)>0){
+			preg_match("/\<title\>(.*)\<\/title\>/",$str,$title);
+			$name =  $title[1];
+			$name =  addslashes(html_entity_decode($name, ENT_QUOTES, 'UTF-8'));
+			
+			$html = file_get_html($url);
+			foreach($html->find('img') as $element)
+			{
+				$src = url_to_absolute($url, $element->src);
+				$imageSize = getimagesize($src);
+				if($imageSize[0] > 40 && $imageSize[1] > 40 && $imageSize[0]/$imageSize[1] > 0.3 && $imageSize[0]/$imageSize[1] < 3)
+				{
+					$images["$src"] = $imageSize[0] * $imageSize[1];
+				}
+			}
+			arsort($images);
+			print_r($images);
+			
+			foreach($images as $element)
+			{
+				//echo '<img src=\'' .$element[0] . '\'><br>';
+			}
+			$link = key(array_slice($images, 0, 1));
+		}
+	}
+	
 	//Update data in table
-	$query = "INSERT INTO content (id, x, y, z, size, rotation, name, type, link, sequence)
-	VALUES ($id, $x, $y, $z, $size, $rotation, '$name', $type, '$link', $sequence)";
+	$query = "INSERT INTO content (id, x, y, z, size, rotation, name, type, link, sequence, URL)
+	VALUES ($id, $x, $y, $z, $size, $rotation, '$name', $type, '$link', $sequence, '$url')";
 	$result = mysql_query($query) or die(mysql_error());  
 	
 	echo "	sequence = $sequence;
-	addObject($id, $type, $x, $y, $z, $size, $rotation, '$name', '$link');"
+	addObject($id, $type, $x, $y, $z, $size, $rotation, '$name', '$link', '$url');"
 ?>
