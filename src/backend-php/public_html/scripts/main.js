@@ -523,7 +523,7 @@ function myDown(e){
 	    	console.log("Volume");
 			temp_x = (e.pageX);
 			temp_y = (e.pageY);
-			canvas.onmousemove = myMove;
+			//canvas.onmousemove = myMove;
 		}
 		else 
 		{
@@ -649,8 +649,6 @@ function findObjectId (id){
 }
 
 function myMove(e){
-
-
 	//console.log("Moved");
     if (e.type == "MozTouchMove")
     {
@@ -743,17 +741,14 @@ function convertVolume(volumeIn){
 function myUp(e){
 	console.log("myUp");
 	//canvas.onmouseup = null;
-	if (e.type == "MozTouchUp") //Touched
-	{
+	if (e.type == "MozTouchUp") {//Touched
 		touches[e.streamId].active = false;
     	objectId = findObjectId(touches[e.streamId].object);
 		//imageId = objectId;
 		console.log("TouchUp: " + e.streamId + "  - Moved? " + moved_flag);
 		multitouch = false;
-		
-	}
-	if(volumeFlag)
-		{
+		}
+	if(volumeFlag) {
 		volumeFlag = false;
 		}
 	console.log("Moved? " + moved_flag);

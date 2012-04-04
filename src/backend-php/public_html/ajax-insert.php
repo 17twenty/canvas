@@ -51,23 +51,27 @@
 			$name =  addslashes(html_entity_decode($name, ENT_QUOTES, 'UTF-8'));
 			
 			$html = file_get_html($url);
-			foreach($html->find('img') as $element)
+			$imagesFound = $html->find('img');
+			if (count($imagesFound) > 0)
 			{
-				$src = url_to_absolute($url, $element->src);
-				$imageSize = getimagesize($src);
-				if($imageSize[0] > 40 && $imageSize[1] > 40 && $imageSize[0]/$imageSize[1] > 0.3 && $imageSize[0]/$imageSize[1] < 3)
+				foreach($imagesFound as $element)
 				{
-					$images["$src"] = $imageSize[0] * $imageSize[1];
+					$src = url_to_absolute($url, $element->src);
+					$imageSize = getimagesize($src);
+					if($imageSize[0] > 40 && $imageSize[1] > 40 && $imageSize[0]/$imageSize[1] > 0.3 && $imageSize[0]/$imageSize[1] < 3)
+					{
+						$images["$src"] = $imageSize[0] * $imageSize[1];
+					}
 				}
+				arsort($images);
+				//print_r($images);
+				
+				//foreach($images as $element)
+				//{
+					//echo '<img src=\'' .$element[0] . '\'><br>';
+				//}
+				$link = key(array_slice($images, 0, 1));
 			}
-			arsort($images);
-			print_r($images);
-			
-			foreach($images as $element)
-			{
-				//echo '<img src=\'' .$element[0] . '\'><br>';
-			}
-			$link = key(array_slice($images, 0, 1));
 		}
 	}
 	
