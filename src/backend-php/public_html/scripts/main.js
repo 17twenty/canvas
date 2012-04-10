@@ -178,29 +178,35 @@ function init()
 	        dataType: 'json',
 	        url: 'php/index.php',
 	        done: function (e, data) {
-				apprise('Please enter a caption?',{'confirm':false,'verify':false,'input':true,'animate':true,'textCancel':'Cancel'}, function(name) {
-					if (name == false) name = "";
-					$.each(data.result, function (index, file) {
-						if (file.error == null)	{
-							var type = IMAGE;
-							if (file.type == "video/webm" || file.type == "video/mp4") 
-								type = VIDEO;
-							$.ajax({
-								type: "GET",
-								url: "ajax-insert.php",
-								data: {
-									x: (dropX / window.innerWidth ),
-									y: (dropY / window.innerHeight),
-									size: 0.2,
-									rotation: ((Math.random()*60)-30),
-									name: name,
-									type: type,
-									link: "objects/"+file.name
-								},
-								  dataType: "script"
+				$.each(data.result, function (index, file) {
+					if (file.error == null)	{
+						if (name == false) name = "";
+						var temptype = null;
+						if (file.type == "image/jpeg" || file.type == "image/gif" || file.type == "image/png" || file.type == "image/tiff") 
+							temptype = IMAGE;
+						if (file.type == "video/webm" || file.type == "video/mp4" || file.type == "video/ogg") 
+							temptype = VIDEO;
+						if (temptype != null) {
+							apprise('Please enter a caption?',{'confirm':false,'verify':false,'input':true,'animate':true,'textCancel':'Cancel'}, function(name) {
+								$.ajax({
+									type: "GET",
+									url: "ajax-insert.php",
+									data: {
+										x: (dropX / window.innerWidth ),
+										y: (dropY / window.innerHeight),
+										size: 0.2,
+										rotation: ((Math.random()*60)-30),
+										name: name,
+										type: temptype,
+										link: "objects/"+file.name,
+										url: ""
+									},
+									dataType: "script"
+								});
 							});
 						}
-					});
+						else apprise('File format not supported');
+					}
 				});
 	        }
 	    });
@@ -332,15 +338,18 @@ function drawImage(image)
 		{
 			ctx.shadowOffsetX = 10;
 			ctx.shadowOffsetY = 10;
-			ctx.shadowBlur    = 10;
-			ctx.shadowColor   = 'rgba(0, 0, 0, 0.5)';    
+			ctx.shadowBlur    = 5;
+			ctx.shadowColor   = 'rgba(0, 0, 0, 0.2)';    
 		}
 
 		// Frame around each item
 		ctx.beginPath(); 
 		ctx.rect(-0.5*size-10, Math.floor(-0.5 * size * image.aspectRatio -25), size+20, Math.floor((size * image.aspectRatio)+50));	
-		ctx.fillStyle = "#FFFFFF"; 
+		ctx.fillStyle = "#deddd9"; 
 		ctx.fill();
+		ctx.lineWidth = 1;
+		ctx.strokeStyle = "#47423c";
+		ctx.stroke(); 
 
 		ctx.shadowOffsetX = 0;
 		ctx.shadowOffsetY = 0;
@@ -425,7 +434,7 @@ function myDown(e){
 			if ((e.mozInputSource > 1)) // check if a 'click' is really a 'touch'
 					//touches[2].active || touches[3].active || touch || clickBlock || (e.mozInputSource > 1))
 				return
-			console.log("Click");
+			//console.log("Click");
 			touch = false;
 			canvas.onmousemove = myMove;
 			oldX = e.pageX;
@@ -435,7 +444,7 @@ function myDown(e){
 			{
 			e.preventDefault();  
 			touch = true;
-			console.log("Touch: " + e.streamId);
+			//console.log("Touch: " + e.streamId);
 		    //touches[e.streamId].active = false; //reset
 		    clickBlock = true;
 			canvas.onmousemove = null;
@@ -739,7 +748,7 @@ function convertVolume(volumeIn){
 }
 
 function myUp(e){
-	console.log("myUp");
+	//console.log("myUp");
 	//canvas.onmouseup = null;
 	if (e.type == "MozTouchUp") {//Touched
 		touches[e.streamId].active = false;
@@ -751,23 +760,23 @@ function myUp(e){
 	if(volumeFlag) {
 		volumeFlag = false;
 		}
-	console.log("Moved? " + moved_flag);
+	//console.log("Moved? " + moved_flag);
 	currentX = e.pageX;
 	currentY = e.pageY;
 	canvas.onmousemove = null;
-	console.log(removeIcons);
+	//console.log(removeIcons);
 	if (removeIcons == null){
-		console.log("SetTimeout");
-		removeIcons=setTimeout("displayIcons = false; render(); console.log(\"HideIcons\"); removeIcons=null;",3000);
+		//console.log("SetTimeout");
+		removeIcons=setTimeout("displayIcons = false; render(); removeIcons=null;",3000);
 	}
 	if (moved_flag == false && (drag_flag || touch_flag)) {
 		if (objects[imageId].type == VIDEO) {
-			console.log("Play Video");
+			//console.log("Play Video");
 			if(objects[imageId].image.paused ||  objects[imageId].image.ended) objects[imageId].image.play(); else {objects[imageId].image.currentTime = 0; objects[imageId].image.pause();}
 			
 		}
 		if (objects[imageId].type == WEB) {
-			console.log("Open Weblink");
+			//console.log("Open Weblink");
 			var popupHeight = $("#popupContact").height();
 			var popupWidth = $("#popupContact").width();
 			document.getElementById('popupFrame').innerHTML = "<iframe width="+popupWidth+" height="+popupHeight+" src=\""+objects[imageId].url+"\"></iframe>";
