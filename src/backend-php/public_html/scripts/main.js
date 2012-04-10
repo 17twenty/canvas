@@ -532,7 +532,7 @@ function myDown(e){
 	    	console.log("Volume");
 			temp_x = (e.pageX);
 			temp_y = (e.pageY);
-			//canvas.onmousemove = myMove;
+			canvas.onmousemove = myMove;
 		}
 		else 
 		{
