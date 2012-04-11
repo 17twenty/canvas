@@ -345,10 +345,10 @@ function drawImage(image)
 		// Frame around each item
 		ctx.beginPath(); 
 		ctx.rect(-0.5*size-10, Math.floor(-0.5 * size * image.aspectRatio -25), size+20, Math.floor((size * image.aspectRatio)+50));	
-		ctx.fillStyle = "#deddd9"; 
+		ctx.fillStyle = "#FFFFFF"; 
 		ctx.fill();
 		ctx.lineWidth = 1;
-		ctx.strokeStyle = "#47423c";
+		ctx.strokeStyle = "#000000";
 		ctx.stroke(); 
 
 		ctx.shadowOffsetX = 0;
@@ -847,7 +847,7 @@ function render()
     		var angle_to_BR = Math.atan2((convertSize(objects[i].size) * objects[i].aspectRatio + 30), convertSize(objects[i].size)) + objects[i].rotation * Math.PI  / 180;
     		var angle_to_BL = angle_to_TR + Math.PI;
     		var angle_to_TL = angle_to_BR + Math.PI;
-    		var mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size),2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio + 30),2)) / 2;
+    		var mag_to_corner = Math.sqrt(Math.pow(convertSize(objects[i].size)+10,2) + Math.pow((convertSize(objects[i].size) * objects[i].aspectRatio + 30+10),2)) / 2;
 
     		// Hotspots
     		if (displayIcons && imageId == i)
