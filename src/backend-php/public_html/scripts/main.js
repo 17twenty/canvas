@@ -339,16 +339,16 @@ function drawImage(image)
 			ctx.shadowOffsetX = 10;
 			ctx.shadowOffsetY = 10;
 			ctx.shadowBlur    = 5;
-			ctx.shadowColor   = 'rgba(0, 0, 0, 0.2)';    
+			ctx.shadowColor   = 'rgba(18, 60, 81, 0.8)';    
 		}
 
 		// Frame around each item
 		ctx.beginPath(); 
 		ctx.rect(-0.5*size-10, Math.floor(-0.5 * size * image.aspectRatio -25), size+20, Math.floor((size * image.aspectRatio)+50));	
-		ctx.fillStyle = "#FFFFFF"; 
+		ctx.fillStyle = "rgba(255, 255, 255, 0.8)"; 
 		ctx.fill();
 		ctx.lineWidth = 1;
-		ctx.strokeStyle = "#000000";
+		ctx.strokeStyle = "#123c51";
 		ctx.stroke(); 
 
 		ctx.shadowOffsetX = 0;
