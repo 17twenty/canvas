@@ -23,3 +23,8 @@ Guides
 * [Installation guide](doc/installation.md).
 * [Use guide](doc/use.md).
 * [Development guide](doc/development.md).
+=======
+canvas
+======
+
+Canvas by Cambridge Design Partnership
