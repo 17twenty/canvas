@@ -9,7 +9,7 @@ if (array_key_exists("url", $_GET) == false)
 $videoUrl = urldecode($_GET["url"]); //"http://www.youtube.com/watch?v=6iK4dy74ibY";
 //$videoUrl = "http://www.youtube.com/watch?v=4q5ZHU8yvLQ";
 
-chdir(dirname(getcwd())."\\objects");
+chdir(dirname(dirname(getcwd()))."\\objects");
 $path  = dirname(getcwd())."\\scripts\\youtube-dl.py";
 
 exec("C:\\Python27\\python.exe " . $path . " " . escapeshellarg($videoUrl)." -F", $result);

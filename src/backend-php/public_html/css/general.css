@@ -8,7 +8,7 @@ font-style:inherit;
 font-weight:inherit;
 margin:0pt;
 padding:0pt;
-vertical-align:baseline;
+/*vertical-align:baseline;*/
 }
 @font-face {
 	font-family: "Cabin Sketch";
@@ -67,11 +67,12 @@ border:2px solid #cecece;
 z-index:2;
 padding:1px;
 font-size:13px;
+overflow-y:scroll;
 }
 #menu{
 padding:13px;
 }
-#popupContact h1{
+h1{
 text-align:left;
 color:#6FA5FD;
 font-size:22px;
@@ -96,4 +97,9 @@ margin:100px;
 }
 div.YouTubeContent{
 float:left;
+width:600px;
+}
+td{
+	 vertical-align:top;
+	 padding:2px;
 }

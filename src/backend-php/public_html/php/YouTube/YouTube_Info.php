@@ -10,9 +10,9 @@ if (array_key_exists("url", $_GET) == false)
 $videoUrl = urldecode($_GET["url"]); //"http://www.youtube.com/watch?v=6iK4dy74ibY";
 //$videoUrl = "http://www.youtube.com/watch?v=4q5ZHU8yvLQ";
 
-$path  = dirname(getcwd())."\\scripts\\youtube-dl.py";
+$path  = dirname(dirname(getcwd()))."\\scripts\\youtube-dl.py";
 
-exec("C:\\Python27\\python.exe " . $path . " " . escapeshellarg($videoUrl)." --write-info-json --skip-download", $result);
+exec("C:\\Python27\\python.exe " . $path . " " . escapeshellarg($videoUrl)." --write-info-json --skip-download --write-description", $result);
 $imploded = implode("\n", $result);
 preg_match("(JSON to: (.*json))", $imploded, $matches);
 $json_file = $matches[1];

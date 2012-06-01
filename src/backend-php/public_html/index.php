@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <!--  
 Copyright 2011 Cambridge Design Research LLP.
 All rights reserved.
@@ -24,6 +25,7 @@ Cambridge Design Research LLP.
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" >
 <title>Canvas by Cambridge Design Partnership</title>
 <style type="text/css">
 body {
@@ -38,8 +40,6 @@ body {
 
 <script type="text/javascript" src="scripts/apprise-1.5.full.js"></script>
 <link rel="stylesheet" href="css/apprise.css" type="text/css" />
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body onresize="resize();">
 	<canvas id="myCanvas" width="500" height="500" style="border: 0px">
@@ -56,6 +56,7 @@ body {
 	<script src="scripts/jquery.iframe-transport.js" type="text/javascript"></script>
 	<script src="scripts/jquery.fileupload.js" type="text/javascript"></script>
 	<script src="scripts/popup.js" type="text/javascript"></script>
+  	<script src="php/YouTube/video_browser.js" type="text/javascript"></script>
 
 	<script type="text/javascript" src="scripts/main.js"> </script>
 	
